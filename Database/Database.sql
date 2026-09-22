@@ -15,7 +15,7 @@ member_id INT PRIMARY KEY,
 loyalty_points INT DEFAULT 0,
 tier_id INT,
 prescription_doc_path VARCHAR(255) NULL,
-CONSTRAINT fk_member_user FOREIGN KEY (member_id) REFERENCES users(user_id) 
+CONSTRAINT fk_member_user FOREIGN KEY (member_id) REFERENCES user(user_id)
 	ON DELETE CASCADE 
 	ON UPDATE CASCADE,
 CONSTRAINT fk_member_tier FOREIGN KEY (tier_id) REFERENCES loyalty_tier(tier_id) 
@@ -52,12 +52,13 @@ CONSTRAINT chk_service_status CHECK (service_status IN ('Scheduled', 'In-Progres
 );
 
 CREATE TABLE IF NOT EXISTS COURIER (
-courier_id INT AUTO_INCREMENT,
-company_name VARCHAR(100) NOT NULL,
-contact_number VARCHAR(20) NOT NULL,
-service_type VARCHAR(50) NOT NULL, 
-CONSTRAINT pk_courier PRIMARY KEY (courier_id)
+    courier_id INT AUTO_INCREMENT,
+    company_name VARCHAR(100) NOT NULL,
+    contact_number VARCHAR(20) NOT NULL,
+    service_type VARCHAR(50) NOT NULL,
+    CONSTRAINT pk_courier PRIMARY KEY (courier_id)
 );
+
 CREATE TABLE Doctor(
 	doctor_id INT,
     specialization VARCHAR(100) NOT NULL,
@@ -94,7 +95,42 @@ CREATE TABLE DOCTOR_APPOINMENT(
     CONSTRAINT pk_doctor_appoinment PRIMARY KEY (doctor_appoinment_id),
     CONSTRAINT fk_appoinment_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE ON UPDATE CASCADE ,
     CONSTRAINT fk_appoinment_doctor FOREIGN KEY (doctor_id) REFERENCES doctor (doctor_id) ON DELETE CASCADE ON UPDATE CASCADE ,
-    CONSTRAINT fk_appoinment_schedule FOREIGN KEY (schedule_id) REFERENCES member (schedule_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_appoinment_schedule FOREIGN KEY (schedule_id) REFERENCES doctor_schedule (schedule_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT uq_appoinment_schedule UNIQUE (schedule_id),
 	CONSTRAINT chk_appoinment_member_status CHECK (status IN('Confirmed', 'Completed','Cancelled'))
+);
+
+CREATE TABLE IF NOT EXISTS Product (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    pName VARCHAR(100),
+    pCategory VARCHAR(50) UNIQUE,
+    pPrice DECIMAL(10, 2),
+    pStock_quantity INT,
+    pDescription TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_date DATETIME,
+    total_amount DECIMAL(10, 2),
+    discount_applied DECIMAL(10, 2) DEFAULT 0.00,
+    order_status VARCHAR(50),
+    member_id INT,
+    CONSTRAINT fk_member FOREIGN KEY (member_id) REFERENCES member(member_id)
+);
+
+CREATE TABLE IF NOT EXISTS Delivery (
+    delivery_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT UNIQUE,
+    courier_id INT,
+    tracking_number VARCHAR(100) UNIQUE,
+    delivery_status VARCHAR(50),
+    dispatch_date DATE,
+    estimated_delivery_date DATE,
+    CONSTRAINT fk_orders FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT fk_courier FOREIGN KEY (courier_id) REFERENCES Courier(courier_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
 );
