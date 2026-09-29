@@ -13,9 +13,8 @@ public class Employee {
     @Column(name = "role_title", nullable = false, length = 50)
     private String roleTitle;
 
-    @Column(name = "assigned_branch", length = 100)
-    private String assignedBranch;
-
+    @Column(name = "assigned_department", length = 100)
+    private String assignedDepartment;
 
     public Integer getEmployeeId() {
         return employeeId;
@@ -33,11 +32,11 @@ public class Employee {
         this.roleTitle = roleTitle;
     }
 
-    public String getAssignedBranch() {
-        return assignedBranch;
+    public String getAssignedDepartment() {
+        return assignedDepartment;
     }
 
-    public void setAssignedBranch(String assignedBranch) {
-        this.assignedBranch = assignedBranch;
+    public void setAssignedDepartment(String assignedDepartment) {
+        this.assignedDepartment = assignedDepartment;
     }
 }

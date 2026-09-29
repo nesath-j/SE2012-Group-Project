@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
@@ -27,8 +26,8 @@ public class EmployeeService {
         return employeeRepository.findById(employeeId);
     }
 
-    public List<Employee> getEmployeesByBranch(String branch) {
-        return employeeRepository.findByAssignedBranch(branch);
+    public List<Employee> getEmployeesByDepartment(String department) {
+        return employeeRepository.findByAssignedDepartment(department);
     }
 
     public Employee saveEmployee(Employee employee) {
@@ -39,7 +38,7 @@ public class EmployeeService {
         return employeeRepository.findById(employeeId)
                 .map(existingEmployee -> {
                     existingEmployee.setRoleTitle(updatedEmployee.getRoleTitle());
-                    existingEmployee.setAssignedBranch(updatedEmployee.getAssignedBranch());
+                    existingEmployee.setAssignedDepartment(updatedEmployee.getAssignedDepartment());
                     return employeeRepository.save(existingEmployee);
                 })
                 .orElseThrow(() -> new RuntimeException("Employee not found with id: " + employeeId));

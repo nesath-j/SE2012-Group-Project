@@ -18,6 +18,7 @@ public class EmployeeController {
 
     @Autowired
     public EmployeeController(EmployeeService employeeService) {
+
         this.employeeService = employeeService;
     }
 
@@ -33,9 +34,9 @@ public class EmployeeController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/branch/{branch}")
-    public ResponseEntity<List<Employee>> getEmployeesByBranch(@PathVariable String branch) {
-        return ResponseEntity.ok(employeeService.getEmployeesByBranch(branch));
+    @GetMapping("/department/{department}")
+    public ResponseEntity<List<Employee>> getEmployeesByDepartment(@PathVariable String department) {
+        return ResponseEntity.ok(employeeService.getEmployeesByDepartment(department));
     }
 
     @PostMapping

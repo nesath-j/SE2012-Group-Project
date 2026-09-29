@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
-    List<Employee> findByAssignedBranch(String assignedBranch);
+    List<Employee> findByAssignedDepartment(String assignedDepartment);
 
     List<Employee> findByRoleTitle(String roleTitle);
 }
