@@ -1,32 +1,39 @@
-package com.VisionExpress.demo.model;
+package com.VisionExpress.model;
 
-public class Member extends User {
+import com.VisionExpress.demo.model.LoyaltyTier;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "member")
+@PrimaryKeyJoinColumn(name = "member_id")
+public class Member extends com.VisionExpress.model.User {
+
+    @Column(name = "loyalty_points", nullable = false)
     private int loyaltyPoints;
-    private Integer tierId; // Nullable if no tier assigned initially
-    private String prescriptionDocPath;
 
-    // Getters and Setters
-    public int getLoyaltyPoints() {
-        return loyaltyPoints;
+    @Column(name = "prescription_doc_path", length = 255)
+    private String prescriptionPath;
+
+    @ManyToOne
+    @JoinColumn(name = "tier_id")
+    private LoyaltyTier loyaltyTier;
+
+    public Member() {
+        super();
+        setUserType("Member");
     }
 
-    public void setLoyaltyPoints(int loyaltyPoints) {
-        this.loyaltyPoints = loyaltyPoints;
-    }
+    public int getLoyaltyPoints() { return loyaltyPoints; }
+    public void setLoyaltyPoints(int loyaltyPoints) { this.loyaltyPoints = loyaltyPoints; }
 
-    public Integer getTierId() {
-        return tierId;
-    }
+    public String getPrescriptionPath() { return prescriptionPath; }
+    public void setPrescriptionPath(String prescriptionPath) { this.prescriptionPath = prescriptionPath; }
 
-    public void setTierId(Integer tierId) {
-        this.tierId = tierId;
-    }
-
-    public String getPrescriptionDocPath() {
-        return prescriptionDocPath;
-    }
-
-    public void setPrescriptionDocPath(String prescriptionDocPath) {
-        this.prescriptionDocPath = prescriptionDocPath;
-    }
+    public LoyaltyTier getLoyaltyTier() { return loyaltyTier; }
+    public void setLoyaltyTier(LoyaltyTier loyaltyTier) { this.loyaltyTier = loyaltyTier; }
 }
