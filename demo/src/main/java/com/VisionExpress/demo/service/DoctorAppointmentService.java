@@ -1,7 +1,9 @@
 package com.VisionExpress.demo.service;
 
 import com.VisionExpress.demo.model.DoctorAppointment;
+import com.VisionExpress.demo.model.DoctorSchedule;
 import com.VisionExpress.demo.repository.DoctorAppointmentRepository;
+import com.VisionExpress.demo.repository.DoctorScheduleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +36,14 @@ public class DoctorAppointmentService {
         appointment.setStatus("SCHEDULED");
         return appointmentRepository.save(appointment);
     }
-
     public List<DoctorAppointment> getAppointmentsByDoctor(Long doctorId) {
         return appointmentRepository.findByDoctorId(doctorId);
     }
+    public List<DoctorAppointment> getAppointmentsByMember(Long memberId) {
+        return appointmentRepository.findByMemberId(memberId);
+    }
+
+
 
     public DoctorAppointment updateConsultationNotes(Long appointmentId, String notes) {
         DoctorAppointment appointment = appointmentRepository.findById(appointmentId)
