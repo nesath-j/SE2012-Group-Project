@@ -5,16 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d54daeb-f2a2-4f1a-8d47-32d7d4739b2a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/DeliveryController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/OrderController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/repository/DeliveryRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/repository/OrderRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/DeliveryService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/OrderService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Cart.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/CartItem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Delivery.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Delivery.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Order.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/OrderItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/OrderItem.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
