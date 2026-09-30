@@ -6,12 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="b3e05e86-5f2a-476b-b93c-f964f37a38a9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/DoctorAppointmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/DoctorAppointmentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/DoctorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/DoctorController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/DoctorScheduleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/DoctorScheduleController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/DoctorAppointmentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/DoctorAppointmentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/DoctorScheduleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/DoctorScheduleService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/DoctorService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/DoctorService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/ProductController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Product.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/repository/ProductRepository.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
