@@ -1,4 +1,4 @@
-package com.VisionExpress.model;
+package com.VisionExpress.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

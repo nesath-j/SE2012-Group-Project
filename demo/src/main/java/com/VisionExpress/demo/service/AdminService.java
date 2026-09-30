@@ -1,8 +1,7 @@
-package com.VisionExpress.service;
+package com.VisionExpress.demo.service;
 
-import com.VisionExpress.model.SystemSetting;
-import com.VisionExpress.model.User;
-import com.VisionExpress.repository.UserRepository;
+import com.VisionExpress.demo.model.User;
+import com.VisionExpress.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

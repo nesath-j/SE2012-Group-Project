@@ -1,7 +1,7 @@
-package com.VisionExpress.controller;
+package com.VisionExpress.demo.controller;
 
-import com.VisionExpress.model.User;
-import com.VisionExpress.service.UserService;
+import com.VisionExpress.demo.model.User;
+import com.VisionExpress.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

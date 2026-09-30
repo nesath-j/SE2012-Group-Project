@@ -1,6 +1,6 @@
-package com.VisionExpress.repository;
+package com.VisionExpress.demo.repository;
 
-import com.VisionExpress.model.User;
+import com.VisionExpress.demo.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
