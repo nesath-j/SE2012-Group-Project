@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/service-appointments")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 public class ServiceAppointmentController {
 
     private final ServiceAppointmentService appointmentService;
@@ -21,7 +21,7 @@ public class ServiceAppointmentController {
         this.appointmentService = appointmentService;
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<ServiceAppointment> bookAppointment(@RequestBody ServiceAppointment appointment) {
         ServiceAppointment created = appointmentService.bookAppointment(appointment);
         return new ResponseEntity<>(created, HttpStatus.CREATED);

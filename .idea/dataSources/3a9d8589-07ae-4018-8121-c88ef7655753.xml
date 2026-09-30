@@ -1013,19 +1013,25 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     <schema id="293" parent="1" name="sys">
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
-    <user id="294" parent="1" name="mysql.infoschema">
+    <schema id="294" parent="1" name="visionexpress">
+      <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
+      <LastIntrospectionLevel>3</LastIntrospectionLevel>
+      <LastIntrospectionLocalTimestamp>2026-09-29.15:34:55</LastIntrospectionLocalTimestamp>
+      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+    </schema>
+    <user id="295" parent="1" name="mysql.infoschema">
       <CanLogin>0</CanLogin>
       <Host>localhost</Host>
     </user>
-    <user id="295" parent="1" name="mysql.session">
+    <user id="296" parent="1" name="mysql.session">
       <CanLogin>0</CanLogin>
       <Host>localhost</Host>
     </user>
-    <user id="296" parent="1" name="mysql.sys">
+    <user id="297" parent="1" name="mysql.sys">
       <CanLogin>0</CanLogin>
       <Host>localhost</Host>
     </user>
-    <user id="297" parent="1" name="root">
+    <user id="298" parent="1" name="root">
       <Host>localhost</Host>
     </user>
   </database-model>
