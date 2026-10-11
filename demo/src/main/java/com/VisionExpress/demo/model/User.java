@@ -37,17 +37,11 @@ public class User {
      @Column(name = "user_type", nullable = false, length = 20)
      private String userType;
 
-     public User() {}
-
-     public User(int userId, String firstName, String lastName, String email, String passwordHash, String phone, String userType) {
-          this.userId = userId;
-          this.firstName = firstName;
-          this.lastName = lastName;
-          this.email = email;
-          this.passwordHash = passwordHash;
-          this.phone = phone;
-          this.userType = userType;
+     // Default constructor required by JPA
+     public User() {
      }
+
+     // Getters and Setters
 
      public int getUserId() {
           return userId;
