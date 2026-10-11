@@ -1,14 +1,19 @@
 package com.VisionExpress.demo.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "carts")
 public class Cart {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cart_id")
     private Long cartId;
 
+    @Column(name = "total_amount")
     private double totalAmount;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -41,6 +46,28 @@ public class Cart {
         cartItems.add(newItem);
         calculateTotal();
     }
+
+    // 3. Removes an item by product ID
+    public void removeItem(Long productId) {
+        cartItems.removeIf(item -> item.getProductId().equals(productId));
+        calculateTotal();
+    }
+
+    // 4. Clears all items from the cart
+    public void clearCart() {
+        cartItems.clear();
+        this.totalAmount = 0.0;
+    }
+
+    public Long getCartId() { return cartId; }
+    public void setCartId(Long cartId) { this.cartId = cartId; }
+
+    public double getTotalAmount() { return totalAmount; }
+    public void setTotalAmount(double totalAmount) { this.totalAmount = totalAmount; }
+
+    public List<CartItem> getCartItems() { return cartItems; }
+    public void setCartItems(List<CartItem> cartItems) { this.cartItems = cartItems; }
+
 }
 
 

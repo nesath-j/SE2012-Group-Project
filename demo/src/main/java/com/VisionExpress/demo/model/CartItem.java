@@ -1,14 +1,20 @@
 package com.VisionExpress.demo.model;
 
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "cart_items")
 public class CartItem {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cart_item_id")
     private Long cartItemId;
 
+    @Column(name = "product_id")
     private Long productId;
+    @Column(name = "quantity")
     private int quantity;
+    @Column(name = "unit_price")
     private double unitPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
