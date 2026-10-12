@@ -1,7 +1,10 @@
 package com.VisionExpress.demo.service;
 
 import com.VisionExpress.demo.model.User;
+import com.VisionExpress.demo.model.Product;
+
 import com.VisionExpress.demo.repository.UserRepository;
+import com.VisionExpress.demo.repository.ProductRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -16,12 +19,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
     // Password hashing settings
     private static final int ITERATIONS = 600_000;
@@ -32,18 +35,12 @@ public class UserService {
             new SecureRandom();
 
     // Constructor injection
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    public UserService(UserRepository userRepository,
+                       ProductRepository productRepository) {
 
-    // Temporary product data
-    private final List<String> productCatalog = Arrays.asList(
-            "Ray-Ban Aviator Classic (Frames)",
-            "Oakley Holbrook Polarized (Sunglasses)",
-            "Anti-Reflective Single Vision (Lenses)",
-            "Blue-Light Blocking Reading Glasses (Frames)",
-            "Transitions Signature Gen 8 (Lenses)"
-    );
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
+    }
 
     // Temporary doctor profiles
     private final List<String> doctorProfiles = Arrays.asList(
@@ -88,10 +85,10 @@ public class UserService {
         user.setLastName(user.getLastName().trim());
         user.setEmail(email);
 
-        // Public registration cannot select privileged roles
+        // Prevent public registration with privileged roles
         user.setUserType("User");
 
-        // Hash the password before saving
+        // Hash password before saving
         user.setPasswordHash(hashPassword(rawPassword));
 
         userRepository.save(user);
@@ -123,7 +120,7 @@ public class UserService {
         );
     }
 
-    // 3. Update profile
+    // 3. Update user profile
     public boolean updateProfile(
             int userId,
             String firstName,
@@ -154,21 +151,15 @@ public class UserService {
         return true;
     }
 
-    // 4. Search products (temporary demo data)
-    public List<String> searchProducts(String keyword) {
+    // 4. Search actual products from the database
+    public List<Product> searchProducts(String keyword) {
 
         if (keyword == null || keyword.trim().isEmpty()) {
             return Collections.emptyList();
         }
 
-        String searchTerm =
-                keyword.trim().toLowerCase(Locale.ROOT);
-
-        return productCatalog.stream()
-                .filter(product ->
-                        product.toLowerCase(Locale.ROOT)
-                                .contains(searchTerm))
-                .collect(Collectors.toList());
+        return productRepository
+                .findByNameContainingIgnoreCase(keyword.trim());
     }
 
     // 5. View doctor profiles (temporary demo data)
@@ -176,12 +167,12 @@ public class UserService {
         return doctorProfiles;
     }
 
-    // 6. View services
+    // 6. View optical services (temporary demo data)
     public List<String> viewServices() {
         return opticalServices;
     }
 
-    // Validate names
+    // Validate user names
     private boolean validName(String name) {
         return name != null &&
                 !name.isBlank() &&
@@ -197,7 +188,7 @@ public class UserService {
                 );
     }
 
-    // 7. Hash a password using PBKDF2
+    // 7. Hash password using PBKDF2
     private String hashPassword(String password) {
 
         byte[] salt = new byte[SALT_LENGTH];
@@ -215,7 +206,7 @@ public class UserService {
                 + Base64.getEncoder().encodeToString(hash);
     }
 
-    // 8. Verify a password
+    // 8. Verify password
     private boolean verifyPassword(
             String password, String storedHash) {
 
@@ -264,7 +255,7 @@ public class UserService {
         }
     }
 
-    // 9. Generate the PBKDF2 hash
+    // 9. Generate PBKDF2 hash
     private byte[] deriveKey(
             char[] password,
             byte[] salt,

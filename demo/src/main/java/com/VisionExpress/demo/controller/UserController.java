@@ -1,6 +1,7 @@
 package com.VisionExpress.demo.controller;
 
 import com.VisionExpress.demo.model.User;
+import com.VisionExpress.demo.model.Product;
 import com.VisionExpress.demo.service.UserService;
 
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    // 1. Register a user
+    // 1. Register a new user
     // POST /api/users/register
     @PostMapping("/register")
     public ResponseEntity<String> register(
@@ -42,6 +43,7 @@ public class UserController {
         String phone = request.get("phone");
 
         User user = new User();
+
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
@@ -84,16 +86,13 @@ public class UserController {
                 .body("Invalid credentials.");
     }
 
-    // 3. Update profile
+    // 3. Update user profile
     // PUT /api/users/profile/{userId}
-    // Demo only: authorization must be added before use.
+    // Demo only: authorization has not been implemented
     @PutMapping("/profile/{userId}")
     public ResponseEntity<String> updateProfile(
             @PathVariable int userId,
             @RequestBody User user) {
-
-        // TODO: Verify that the authenticated user owns
-        // this profile before allowing an update.
 
         boolean updated = userService.updateProfile(
                 userId,
@@ -112,13 +111,13 @@ public class UserController {
                 .body("Profile update failed: Invalid details or user not found.");
     }
 
-    // 4. Search products (temporary demo data)
-    // GET /api/users/products/search?keyword=Frames
+    // 4. Search products from database
+    // GET /api/users/products/search?keyword=Ray
     @GetMapping("/products/search")
-    public ResponseEntity<List<String>> searchProducts(
+    public ResponseEntity<List<Product>> searchProducts(
             @RequestParam String keyword) {
 
-        List<String> products =
+        List<Product> products =
                 userService.searchProducts(keyword);
 
         return ResponseEntity.ok(products);
@@ -135,7 +134,7 @@ public class UserController {
         return ResponseEntity.ok(doctors);
     }
 
-    // 6. View services
+    // 6. View optical services (temporary demo data)
     // GET /api/users/services
     @GetMapping("/services")
     public ResponseEntity<List<String>> viewServices() {
