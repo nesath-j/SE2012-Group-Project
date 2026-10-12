@@ -8,4 +8,3 @@ import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
       </button>
     </div>
   );
-}

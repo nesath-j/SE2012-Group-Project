@@ -1,9 +1,7 @@
 :root {
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --text-subtle: #64748b;
   --radius-sm: 8px;
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
   margin: 0;
@@ -11,13 +9,8 @@
 }
 
 body {
-  font-family: var(--font-sans);
-  background-image: 
-  background-attachment: fixed;
   color: var(--text-main);
-  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -28,35 +21,15 @@ h1, h2, h3, h4, h5, h6 {
 
 }
 
-.btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
 }
 .btn-primary:hover {
-  transform: translateY(-2px);
 }
 
 .btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-weight: 600;
-  border-radius: var(--radius-md);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
   border-radius: var(--radius-sm);
-}
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
 }
 
 .badge {
@@ -64,10 +37,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
 }
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
 }
   color: #fbbf24;
   border: 1px solid rgba(245, 158, 11, 0.3);
@@ -77,12 +47,10 @@ h1, h2, h3, h4, h5, h6 {
 
 }
 
-/* Modal Overlay */
 .modal-overlay {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
 }
