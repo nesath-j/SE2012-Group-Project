@@ -3,6 +3,7 @@ package com.VisionExpress.demo.model;
 import jakarta.persistence.*;
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "EMPLOYEE")
 public class Employee {
 
