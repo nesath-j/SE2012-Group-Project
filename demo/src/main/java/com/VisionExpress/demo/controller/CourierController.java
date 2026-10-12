@@ -51,6 +51,7 @@ public class CourierController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourier(@PathVariable Integer id) {
-        courierService.deleteCourier(id); return ResponseEntity.noContent().build();
+        courierService.deleteCourier(id);
+        return ResponseEntity.noContent().build();
     }
 }

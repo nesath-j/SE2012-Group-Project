@@ -27,6 +27,9 @@ public class ServiceAppointment {
     @Column(name = "service_status", nullable = false, length = 50)
     private String serviceStatus;
 
+    public ServiceAppointment() {
+    }
+
     public Integer getServiceAppointmentId() {
         return serviceAppointmentId;
     }

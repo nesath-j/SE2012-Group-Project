@@ -4,18 +4,12 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "MANAGER")
-public class Manager {
+@PrimaryKeyJoinColumn(name = "manager_id")
+public class Manager extends Employee {
 
-    @Id
-    @Column(name = "manager_id")
-    private Integer managerId;
-
-    public Integer getManagerId() {
-        return managerId;
-    }
-
-    public void setManagerId(Integer managerId) {
-        this.managerId = managerId;
+    // Default No-Args Constructor (Required by JPA)
+    public Manager() {
+        super();
     }
 
 }

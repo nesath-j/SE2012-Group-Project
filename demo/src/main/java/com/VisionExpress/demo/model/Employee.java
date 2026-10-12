@@ -16,6 +16,9 @@ public class Employee {
     @Column(name = "assigned_department", length = 100)
     private String assignedDepartment;
 
+    public Employee() {
+    }
+
     public Integer getEmployeeId() {
         return employeeId;
     }

@@ -47,13 +47,20 @@ public class ServiceAppointmentController {
         return ResponseEntity.ok(appointmentService.getAppointmentsByEmployee(employeeId));
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<ServiceAppointment> updateStatus(@PathVariable Integer id, @RequestParam String status) {
-        return ResponseEntity.ok(appointmentService.updateStatus(id, status));
+    // Employee completes appointment: Scheduled -> Completed[cite: 3]
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<ServiceAppointment> completeAppointment(@PathVariable Integer id) {
+        return ResponseEntity.ok(appointmentService.completeAppointment(id));
     }
 
+    // Member or Employee cancellation endpoint[cite: 3]
     @PutMapping("/{id}/cancel")
     public ResponseEntity<ServiceAppointment> cancelAppointment(@PathVariable Integer id) {
         return ResponseEntity.ok(appointmentService.cancelAppointment(id));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ServiceAppointment> updateStatus(@PathVariable Integer id, @RequestParam String status) {
+        return ResponseEntity.ok(appointmentService.updateStatus(id, status));
     }
 }

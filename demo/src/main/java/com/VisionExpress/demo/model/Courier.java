@@ -20,6 +20,9 @@ public class Courier {
     @Column(name = "service_type", nullable = false, length = 50)
     private String serviceType;
 
+    // Default Constructor
+    public Courier() {}
+
     public Integer getCourierId() {
         return courierId;
     }
