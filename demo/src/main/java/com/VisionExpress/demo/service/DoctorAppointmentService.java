@@ -58,4 +58,16 @@ public class DoctorAppointmentService {
         appointment.setStatus(status);
         return appointmentRepository.save(appointment);
     }
+    @Transactional
+    public boolean cancelAppointment(Long appointmentId) {
+        return appointmentRepository.findById(appointmentId).map(appointment -> {
+            // Release the schedule slot using scheduleId
+            scheduleRepository.findById(appointment.getScheduleId()).ifPresent(schedule -> {
+                schedule.setBooked(false);
+                scheduleRepository.save(schedule);
+            });
+            appointmentRepository.deleteById(appointmentId);
+            return true;
+        }).orElse(false);
+    }
 }
