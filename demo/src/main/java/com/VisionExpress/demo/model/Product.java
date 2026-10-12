@@ -1,22 +1,26 @@
 package com.VisionExpress.demo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
     private Long productId;
 
+    @Column(name = "name")
     private String name;
+    @Column(name = "category")
     private String category;
+    @Column(name = "price")
     private double price;
+    @Column(name = "stock_quantity")
     private int stockQuantity;
+    @Column(name = "description")
     private String description;
+    @Column(name = "pic")
     private String pic;
 
     // Default Constructor (Required by JPA)

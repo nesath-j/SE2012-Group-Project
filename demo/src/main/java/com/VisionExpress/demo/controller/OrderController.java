@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -54,6 +55,19 @@ public class OrderController {
         return orderService.applyDiscount(id, discount)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // POST /api/orders/{orderId}/payment-slip
+    @PostMapping("/{orderId}/payment-slip")
+    public ResponseEntity<Order> uploadPaymentSlip(
+            @PathVariable Long orderId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            Order updatedOrder = orderService.uploadPaymentSlip(orderId, file);
+            return ResponseEntity.ok(updatedOrder);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 }
 

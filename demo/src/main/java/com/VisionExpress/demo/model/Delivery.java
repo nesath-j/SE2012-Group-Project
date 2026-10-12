@@ -10,14 +10,21 @@ public class Delivery {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "delivery_id")
     private Long deliveryId;
 
+    @Column(name = "tracking_no")
     private String trackingNo;
+    @Column(name = "delivery_status")
     private String deliveryStatus;
+    @Column(name = "dispatch_date")
     private Date dispatchDate;
+    @Column(name = "estimated_delivery_date")
     private Date estimatedDeliveryDate;
 
+    @Column(name = "order_id")
     private Long orderId;
+    @Column(name = "courier_id")
     private Long courierId;
 
     // 1. Updates delivery status

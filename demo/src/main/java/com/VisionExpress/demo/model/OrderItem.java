@@ -8,9 +8,11 @@ public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "orderItem_id")
     private Long orderItemId;
-
+    @Column(name = "quantity")
     private int quantity;
+    @Column(name = "unit_price")
     private double unitPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
