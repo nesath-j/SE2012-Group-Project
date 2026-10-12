@@ -1,5 +1,3 @@
-import React from 'react';
-
   return (
           </div>
           <div>
@@ -8,9 +6,6 @@ import React from 'react';
         </div>
 
               >
-              <button 
-              >
-              </button>
               <button 
               >
               </button>
