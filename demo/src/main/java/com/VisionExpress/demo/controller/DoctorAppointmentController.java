@@ -60,4 +60,12 @@ public class DoctorAppointmentController {
             return ResponseEntity.notFound().build();
         }
     }
+    // DELETE: http://localhost:8080/api/doctor-appointments/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> cancelAppointment(@PathVariable Long id) {
+        if (appointmentService.cancelAppointment(id)) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }
