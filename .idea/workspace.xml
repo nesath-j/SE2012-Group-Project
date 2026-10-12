@@ -5,18 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b3e05e86-5f2a-476b-b93c-f964f37a38a9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/ManagerController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/repository/ManagerRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/ManagerService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/CourierController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/CourierController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/ServiceAppointmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/ServiceAppointmentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Courier.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Courier.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Employee.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Employee.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Manager.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Manager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/ServiceAppointment.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/ServiceAppointment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/repository/ServiceAppointmentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/repository/ServiceAppointmentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/ServiceAppointmentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/ServiceAppointmentService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
