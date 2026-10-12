@@ -44,14 +44,14 @@ public class DoctorAppointmentService {
     }
 
 
-
+    @Transactional
     public DoctorAppointment updateConsultationNotes(Long appointmentId, String notes) {
         DoctorAppointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
         appointment.setConsultationNotes(notes);
         return appointmentRepository.save(appointment);
     }
-
+    @Transactional
     public DoctorAppointment updateStatus(Long appointmentId, String status) {
         DoctorAppointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
@@ -61,7 +61,6 @@ public class DoctorAppointmentService {
     @Transactional
     public boolean cancelAppointment(Long appointmentId) {
         return appointmentRepository.findById(appointmentId).map(appointment -> {
-            // Release the schedule slot using scheduleId
             scheduleRepository.findById(appointment.getScheduleId()).ifPresent(schedule -> {
                 schedule.setBooked(false);
                 scheduleRepository.save(schedule);
