@@ -1,65 +1,61 @@
 import React from 'react';
+import { useAuth } from '../context/AuthContext';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
-export default function Toast({ toasts, onDismiss }) {
-  if (!toasts || toasts.length === 0) return null;
+export default function Toast() {
+  const { toasts, removeToast } = useAuth();
+
+  if (!toasts.length) return null;
 
   return (
     <div style={{
       position: 'fixed',
-      bottom: '24px',
-      right: '24px',
+      bottom: '1.5rem',
+      right: '1.5rem',
       zIndex: 9999,
       display: 'flex',
       flexDirection: 'column',
-      gap: '10px',
+      gap: '0.75rem',
       maxWidth: '420px',
-      width: 'calc(100% - 48px)'
+      pointerEvents: 'none',
     }}>
       {toasts.map(toast => {
         const isSuccess = toast.type === 'success';
         const isError = toast.type === 'error';
-        const borderColor = isSuccess ? 'rgba(16, 185, 129, 0.4)' : isError ? 'rgba(244, 63, 94, 0.4)' : 'rgba(14, 165, 233, 0.4)';
-        const bgColor = isSuccess ? 'rgba(6, 44, 30, 0.95)' : isError ? 'rgba(48, 14, 25, 0.95)' : 'rgba(12, 30, 56, 0.95)';
-
         return (
           <div
             key={toast.id}
             style={{
-              background: bgColor,
-              border: `1px solid ${borderColor}`,
-              backdropFilter: 'blur(12px)',
+              pointerEvents: 'auto',
+              background: '#ffffff',
+              border: `1.5px solid ${isSuccess ? '#10b981' : isError ? '#f43f5e' : '#0284c7'}`,
               borderRadius: '12px',
-              padding: '14px 16px',
-              color: '#f8fafc',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+              padding: '0.875rem 1.15rem',
+              boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.15)',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-              animation: 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+              alignItems: 'center',
+              gap: '0.75rem',
+              color: '#0f172a',
+              fontSize: '0.9rem',
+              fontWeight: 500,
+              animation: 'fadeIn 0.25s ease-out forwards',
             }}
           >
-            <div style={{ marginTop: '2px', flexShrink: 0 }}>
-              {isSuccess && <CheckCircle2 size={18} color="#34d399" />}
-              {isError && <AlertCircle size={18} color="#fb7185" />}
-              {!isSuccess && !isError && <Info size={18} color="#38bdf8" />}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              {toast.title && <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '2px' }}>{toast.title}</div>}
-              <div style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: '1.4' }}>{toast.message}</div>
-            </div>
+            {isSuccess && <CheckCircle2 size={20} color="#10b981" style={{ flexShrink: 0 }} />}
+            {isError && <AlertCircle size={20} color="#f43f5e" style={{ flexShrink: 0 }} />}
+            {!isSuccess && !isError && <Info size={20} color="#0284c7" style={{ flexShrink: 0 }} />}
+            <span style={{ flex: 1, lineHeight: 1.4 }}>{toast.message}</span>
             <button
-              onClick={() => onDismiss(toast.id)}
+              onClick={() => removeToast(toast.id)}
               style={{
                 color: '#94a3b8',
+                display: 'inline-flex',
                 padding: '2px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '6px'
+                borderRadius: '4px',
+                cursor: 'pointer',
               }}
             >
-              <X size={15} />
+              <X size={16} />
             </button>
           </div>
         );
