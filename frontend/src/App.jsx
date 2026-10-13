@@ -1,7 +1,0 @@
-  return (
-    </main>
-
-        </div>
-      </div>
-  );
-}
