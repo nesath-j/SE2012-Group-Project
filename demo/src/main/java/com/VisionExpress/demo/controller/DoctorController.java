@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/doctors")
@@ -20,41 +21,50 @@ public class DoctorController {
     }
     // GET: http://localhost:8080/api/doctors
     @GetMapping
-    public ResponseEntity<List<Doctor>> getAllDoctors() {
-        return ResponseEntity.ok(doctorService.getAllDoctors());
+    public ResponseEntity<List<Map<String, Object>>> getAllDoctors() {
+        List<Map<String, Object>> doctors = doctorService.getAllDoctors()
+                .stream()
+                .map(this::toPublicProfile)
+                .toList();
+
+        return ResponseEntity.ok(doctors);
     }
     // GET: http://localhost:8080/api/doctors/1
     @GetMapping("/{id}")
-    public ResponseEntity<Doctor> getDoctorById(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> getDoctorById(@PathVariable Long id) {
         return doctorService.getDoctorById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(doctor -> ResponseEntity.ok(toPublicProfile(doctor)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // POST: http://localhost:8080/api/doctors
     @PostMapping
-    public ResponseEntity<Doctor> createDoctor(@RequestBody Doctor doctor) {
-        Doctor savedDoctor = doctorService.saveDoctor(doctor);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedDoctor);
+    public ResponseEntity<String> createDoctor(@RequestBody Doctor doctor) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Doctor creation requires administrator authorization.");
     }
 
     // PUT: http://localhost:8080/api/doctors/1
     @PutMapping("/{id}")
-    public ResponseEntity<Doctor> updateDoctor(@PathVariable Long id, @RequestBody Doctor doctor) {
-        try {
-            Doctor updatedDoctor = doctorService.updateDoctor(id, doctor);
-            return ResponseEntity.ok(updatedDoctor);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<String> updateDoctor(@PathVariable Long id, @RequestBody Doctor doctor) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Doctor updates require administrator authorization.");
     }
 
     // DELETE: http://localhost:8080/api/doctors/1
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDoctor(@PathVariable Long id) {
-        if (doctorService.deleteDoctor(id)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<String> deleteDoctor(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Doctor deletion requires administrator authorization.");
+    }
+
+    private Map<String, Object> toPublicProfile(Doctor doctor) {
+        return Map.of(
+                "doctorId", doctor.getDoctorId(),
+                "firstName", doctor.getFirstName(),
+                "lastName", doctor.getLastName(),
+                "specialization", doctor.getSpecialization(),
+                "licenseNumber", doctor.getLicenseNumber()
+        );
     }
 }

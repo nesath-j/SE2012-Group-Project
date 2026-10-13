@@ -33,7 +33,9 @@ public class DoctorAppointmentService {
         schedule.setBooked(true);
         scheduleRepository.save(schedule);
 
-        appointment.setStatus("SCHEDULED");
+        appointment.setStatus(
+                DoctorAppointment.AppointmentStatus.SCHEDULED
+        );
         return appointmentRepository.save(appointment);
     }
     public List<DoctorAppointment> getAppointmentsByDoctor(Long doctorId) {
@@ -51,22 +53,70 @@ public class DoctorAppointmentService {
         appointment.setConsultationNotes(notes);
         return appointmentRepository.save(appointment);
     }
+
     @Transactional
-    public DoctorAppointment updateStatus(Long appointmentId, String status) {
+    public DoctorAppointment updateStatus(
+            Long appointmentId,
+            DoctorAppointment.AppointmentStatus status) {
+
+        if (status == null) {
+            throw new IllegalArgumentException(
+                    "Appointment status cannot be null.");
+        }
+
         DoctorAppointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Appointment not found."));
+
+        if (status == DoctorAppointment.AppointmentStatus.CANCELLED) {
+            cancelAppointment(appointmentId);
+            return appointmentRepository.findById(appointmentId)
+                    .orElseThrow();
+        }
+
+        if (appointment.getStatus() == DoctorAppointment.AppointmentStatus.CANCELLED) {
+            throw new IllegalStateException(
+                    "Cancelled appointments cannot be updated.");
+        }
+
         appointment.setStatus(status);
         return appointmentRepository.save(appointment);
     }
+
+
+
     @Transactional
     public boolean cancelAppointment(Long appointmentId) {
-        return appointmentRepository.findById(appointmentId).map(appointment -> {
-            scheduleRepository.findById(appointment.getScheduleId()).ifPresent(schedule -> {
-                schedule.setBooked(false);
-                scheduleRepository.save(schedule);
-            });
-            appointmentRepository.deleteById(appointmentId);
-            return true;
-        }).orElse(false);
+
+        return appointmentRepository.findById(appointmentId)
+                .map(appointment -> {
+
+                    if (appointment.getStatus() ==
+                            DoctorAppointment.AppointmentStatus.CANCELLED) {
+                        return false;
+                    }
+
+                    if (appointment.getStatus() ==
+                            DoctorAppointment.AppointmentStatus.COMPLETED) {
+                        throw new IllegalStateException(
+                                "Completed appointments cannot be cancelled.");
+                    }
+
+                    scheduleRepository.findById(appointment.getScheduleId())
+                            .ifPresent(schedule -> {
+                                schedule.setBooked(false);
+                                scheduleRepository.save(schedule);
+                            });
+
+                    appointment.setStatus(
+                            DoctorAppointment.AppointmentStatus.CANCELLED
+                    );
+
+                    appointmentRepository.save(appointment);
+
+                    return true;
+                })
+                .orElse(false);
     }
+
 }

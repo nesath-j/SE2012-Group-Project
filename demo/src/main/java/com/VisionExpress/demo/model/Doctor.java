@@ -2,22 +2,16 @@ package com.VisionExpress.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
-import jakarta.persistence.Id;
 
 @Entity
 @Table(name = "Doctor")
-public class Doctor {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "doctor_id")
-    private Long doctorId;
-
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+@PrimaryKeyJoinColumn(
+        name = "doctor_id",
+        referencedColumnName = "user_id"
+)
+public class Doctor extends User {
 
     @Column(name = "specialization", nullable = false)
     private String specialization;
@@ -25,22 +19,17 @@ public class Doctor {
     @Column(name = "license_number", nullable = false)
     private String licenseNumber;
 
-    // Getters and Setters
+    // Default constructor required by JPA
+    public Doctor() {
+        super();
+    }
+
+    // Doctor ID uses the inherited User ID
     public Long getDoctorId() {
-        return doctorId;
+        return getUserId();
     }
 
-    public void setDoctorId(Long doctorId) {
-        this.doctorId = doctorId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+    // Getters and Setters
 
     public String getSpecialization() {
         return specialization;
