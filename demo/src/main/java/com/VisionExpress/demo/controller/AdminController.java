@@ -23,7 +23,7 @@ public class AdminController {
     // POST /api/admin/users/{userId}/manage
     @PostMapping("/users/{userId}/manage")
     public ResponseEntity<String> manageUserAccounts(
-            @PathVariable int userId,
+            @PathVariable Long userId,
             @RequestBody Map<String, String> request) {
 
         // TODO: Verify authenticated Admin permissions

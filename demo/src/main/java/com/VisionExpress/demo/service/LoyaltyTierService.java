@@ -54,7 +54,7 @@ public class LoyaltyTierService {
     }
 
     // 4. Get a member's current loyalty tier
-    public LoyaltyTier getMemberTier(int memberId) {
+    public LoyaltyTier getMemberTier(Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() ->
@@ -73,7 +73,7 @@ public class LoyaltyTierService {
     }
 
     // 6. Get the discount percentage for a member
-    public double getMemberDiscount(int memberId) {
+    public double getMemberDiscount(Long memberId) {
 
         LoyaltyTier tier = getMemberTier(memberId);
 

@@ -1,20 +1,18 @@
 package com.VisionExpress.demo.service;
 
 import com.VisionExpress.demo.model.User;
+import com.VisionExpress.demo.model.Member;
 import com.VisionExpress.demo.model.Product;
+import com.VisionExpress.demo.model.Doctor;
 
 import com.VisionExpress.demo.repository.UserRepository;
+import com.VisionExpress.demo.repository.MemberRepository;
 import com.VisionExpress.demo.repository.ProductRepository;
+import com.VisionExpress.demo.repository.DoctorRepository;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -24,38 +22,30 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
+    private final DoctorRepository doctorRepository;
+    private final ServiceAppointmentService serviceAppointmentService;
+    private final PasswordEncoder passwordEncoder;
 
     // Password hashing settings
-    private static final int ITERATIONS = 600_000;
-    private static final int SALT_LENGTH = 16;
-    private static final int KEY_LENGTH = 256;
-
-    private static final SecureRandom RANDOM =
-            new SecureRandom();
+    // Password hashing is now handled by CustomPasswordEncoder.
 
     // Constructor injection
     public UserService(UserRepository userRepository,
-                       ProductRepository productRepository) {
+                       MemberRepository memberRepository,
+                       ProductRepository productRepository,
+                       DoctorRepository doctorRepository,
+                       ServiceAppointmentService serviceAppointmentService,
+                       PasswordEncoder passwordEncoder) {
 
         this.userRepository = userRepository;
+        this.memberRepository = memberRepository;
         this.productRepository = productRepository;
+        this.doctorRepository = doctorRepository;
+        this.serviceAppointmentService = serviceAppointmentService;
+        this.passwordEncoder = passwordEncoder;
     }
-
-    // Temporary doctor profiles
-    private final List<String> doctorProfiles = Arrays.asList(
-            "Dr. Nimal Perera - Senior Optometrist",
-            "Dr. Amanda Silva - Consultant Ophthalmologist",
-            "Dr. Rajesh Kumar - Optometrist"
-    );
-
-    // Temporary optical services
-    private final List<String> opticalServices = Arrays.asList(
-            "Comprehensive Eye Examination",
-            "Spectacle Frame Fitting & Adjustment",
-            "Contact Lens Fitting & Consultation",
-            "Lens Replacement and Repair"
-    );
 
     // 1. Register a new user
     public boolean register(User user, String rawPassword) {
@@ -64,7 +54,8 @@ public class UserService {
             return false;
         }
 
-        if (user.getUserId() != 0 ||
+        // Changed: Long userId is null before saving
+        if (user.getUserId() != null ||
                 !validName(user.getFirstName()) ||
                 !validName(user.getLastName()) ||
                 !validEmail(user.getEmail()) ||
@@ -81,17 +72,23 @@ public class UserService {
             return false;
         }
 
-        user.setFirstName(user.getFirstName().trim());
-        user.setLastName(user.getLastName().trim());
-        user.setEmail(email);
+        Member member = new Member();
+
+        member.setFirstName(user.getFirstName().trim());
+        member.setLastName(user.getLastName().trim());
+        member.setEmail(email);
+        member.setPhone(user.getPhone());
 
         // Prevent public registration with privileged roles
-        user.setUserType("User");
+        member.setUserType("MEMBER");
 
         // Hash password before saving
-        user.setPasswordHash(hashPassword(rawPassword));
+        member.setPasswordHash(hashPassword(rawPassword));
 
-        userRepository.save(user);
+        member.setLoyaltyPoints(0);
+        member.setTotalEarnedPoints(0);
+
+        memberRepository.save(member);
 
         return true;
     }
@@ -121,13 +118,15 @@ public class UserService {
     }
 
     // 3. Update user profile
+    // Changed: int userId -> Long userId
     public boolean updateProfile(
-            int userId,
+            Long userId,
             String firstName,
             String lastName,
             String phone) {
 
-        if (!validName(firstName) ||
+        if (userId == null ||
+                !validName(firstName) ||
                 !validName(lastName) ||
                 (phone != null && phone.length() > 20)) {
             return false;
@@ -151,7 +150,7 @@ public class UserService {
         return true;
     }
 
-    // 4. Search actual products from the database
+    // 4. Search products from database
     public List<Product> searchProducts(String keyword) {
 
         if (keyword == null || keyword.trim().isEmpty()) {
@@ -162,14 +161,14 @@ public class UserService {
                 .findByNameContainingIgnoreCase(keyword.trim());
     }
 
-    // 5. View doctor profiles (temporary demo data)
-    public List<String> viewDoctorProfiles() {
-        return doctorProfiles;
+    // 5. View doctors from database
+    public List<Doctor> viewDoctorProfiles() {
+        return doctorRepository.findAll();
     }
 
     // 6. View optical services (temporary demo data)
     public List<String> viewServices() {
-        return opticalServices;
+        return serviceAppointmentService.getAvailableServices();
     }
 
     // Validate user names
@@ -190,101 +189,21 @@ public class UserService {
 
     // 7. Hash password using PBKDF2
     private String hashPassword(String password) {
-
-        byte[] salt = new byte[SALT_LENGTH];
-        RANDOM.nextBytes(salt);
-
-        byte[] hash = deriveKey(
-                password.toCharArray(),
-                salt,
-                ITERATIONS
-        );
-
-        return "pbkdf2_sha256$" + ITERATIONS + "$"
-                + Base64.getEncoder().encodeToString(salt)
-                + "$"
-                + Base64.getEncoder().encodeToString(hash);
+        return passwordEncoder.encode(password);
     }
 
     // 8. Verify password
     private boolean verifyPassword(
             String password, String storedHash) {
-
-        if (password == null || storedHash == null) {
-            return false;
-        }
-
-        try {
-            String[] parts = storedHash.split("\\$");
-
-            if (parts.length != 4 ||
-                    !parts[0].equals("pbkdf2_sha256")) {
-                return false;
-            }
-
-            int iterations = Integer.parseInt(parts[1]);
-
-            if (iterations != ITERATIONS) {
-                return false;
-            }
-
-            byte[] salt =
-                    Base64.getDecoder().decode(parts[2]);
-
-            byte[] expectedHash =
-                    Base64.getDecoder().decode(parts[3]);
-
-            if (salt.length != SALT_LENGTH ||
-                    expectedHash.length != KEY_LENGTH / 8) {
-                return false;
-            }
-
-            byte[] actualHash = deriveKey(
-                    password.toCharArray(),
-                    salt,
-                    iterations
-            );
-
-            return MessageDigest.isEqual(
-                    actualHash,
-                    expectedHash
-            );
-
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        return passwordEncoder.matches(password, storedHash);
     }
 
-    // 9. Generate PBKDF2 hash
-    private byte[] deriveKey(
-            char[] password,
-            byte[] salt,
-            int iterations) {
-
-        PBEKeySpec spec = new PBEKeySpec(
-                password,
-                salt,
-                iterations,
-                KEY_LENGTH
-        );
-
-        try {
-            SecretKeyFactory factory =
-                    SecretKeyFactory.getInstance(
-                            "PBKDF2WithHmacSHA256"
-                    );
-
-            return factory.generateSecret(spec)
-                    .getEncoded();
-
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                    "Password hashing failed", e
-            );
-
-        } finally {
-            spec.clearPassword();
-            Arrays.fill(password, '\0');
+    // Find user by email for authenticated profile access
+    public User findByEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return null;
         }
+
+        return userRepository.findByEmail(email).orElse(null);
     }
 }

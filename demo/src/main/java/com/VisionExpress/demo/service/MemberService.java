@@ -2,6 +2,7 @@ package com.VisionExpress.demo.service;
 
 import com.VisionExpress.demo.model.Member;
 import com.VisionExpress.demo.repository.MemberRepository;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +15,13 @@ public class MemberService {
     private static final int RUPEES_PER_POINT = 100;
     private static final double REDEMPTION_VALUE = 1.0;
 
+    // Constructor injection
     public MemberService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
 
     // 1. View available loyalty points
-    public int viewLoyaltyPoints(int memberId) {
+    public int viewLoyaltyPoints(Long memberId) {
 
         Member member = getMember(memberId);
 
@@ -27,7 +29,7 @@ public class MemberService {
     }
 
     // 2. View lifetime earned points
-    public int getTotalEarnedPoints(int memberId) {
+    public int getTotalEarnedPoints(Long memberId) {
 
         Member member = getMember(memberId);
 
@@ -36,7 +38,7 @@ public class MemberService {
 
     // 3. Earn points after a completed purchase
     @Transactional
-    public void earnPoints(int memberId, double purchaseAmount) {
+    public void earnPoints(Long memberId, double purchaseAmount) {
 
         if (!Double.isFinite(purchaseAmount)
                 || purchaseAmount <= 0) {
@@ -46,23 +48,35 @@ public class MemberService {
 
         Member member = getMember(memberId);
 
-        int earnedPoints =
-                (int) Math.floor(
-                        purchaseAmount / RUPEES_PER_POINT);
+        double calculatedPoints =
+                Math.floor(purchaseAmount / RUPEES_PER_POINT);
+
+        if (calculatedPoints > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(
+                    "Purchase amount is too large.");
+        }
+
+        int earnedPoints = (int) calculatedPoints;
 
         member.setLoyaltyPoints(
-                Math.addExact(member.getLoyaltyPoints(),
-                        earnedPoints));
+                Math.addExact(
+                        member.getLoyaltyPoints(),
+                        earnedPoints
+                )
+        );
 
         member.setTotalEarnedPoints(
-                Math.addExact(member.getTotalEarnedPoints(),
-                        earnedPoints));
+                Math.addExact(
+                        member.getTotalEarnedPoints(),
+                        earnedPoints
+                )
+        );
 
         memberRepository.save(member);
     }
 
     // 4. Calculate point redemption value
-    public double redeemPoints(int memberId, int points) {
+    public double redeemPoints(Long memberId, int points) {
 
         Member member = getMember(memberId);
 
@@ -81,7 +95,7 @@ public class MemberService {
 
     // 5. Deduct points when an order is confirmed
     @Transactional
-    public void confirmRedemption(int memberId, int points) {
+    public void confirmRedemption(Long memberId, int points) {
 
         if (points <= 0) {
             throw new IllegalArgumentException(
@@ -96,14 +110,15 @@ public class MemberService {
         }
 
         member.setLoyaltyPoints(
-                member.getLoyaltyPoints() - points);
+                member.getLoyaltyPoints() - points
+        );
 
         // Total earned points remain unchanged
         memberRepository.save(member);
     }
 
     // 6. Determine the loyalty tier
-    public String getLoyaltyTier(int memberId) {
+    public String getLoyaltyTier(Long memberId) {
 
         Member member = getMember(memberId);
         int totalPoints = member.getTotalEarnedPoints();
@@ -120,7 +135,7 @@ public class MemberService {
     }
 
     // 7. Get the tier discount percentage
-    public double getTierDiscount(int memberId) {
+    public double getTierDiscount(Long memberId) {
 
         String tier = getLoyaltyTier(memberId);
 
@@ -139,7 +154,7 @@ public class MemberService {
     // 8. Store a prescription file reference
     @Transactional
     public void uploadPrescription(
-            int memberId, String filePath) {
+            Long memberId, String filePath) {
 
         if (filePath == null || filePath.isBlank()
                 || filePath.length() > 255) {
@@ -154,11 +169,18 @@ public class MemberService {
     }
 
     // Helper method to find a member
-    private Member getMember(int memberId) {
+    private Member getMember(Long memberId) {
+
+        if (memberId == null) {
+            throw new IllegalArgumentException(
+                    "Member ID cannot be null.");
+        }
 
         return memberRepository.findById(memberId)
                 .orElseThrow(() ->
                         new IllegalArgumentException(
-                                "Member not found: " + memberId));
+                                "Member not found: " + memberId
+                        )
+                );
     }
 }

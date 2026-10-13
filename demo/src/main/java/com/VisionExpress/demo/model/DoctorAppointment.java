@@ -24,11 +24,16 @@ public class DoctorAppointment {
     @Column(name = "appointment_date", nullable = false)
     private LocalDateTime appointmentDate;
 
-    @Column(name = "status", nullable = false)
-    private String status;
-
     @Column(name = "consultation_notes", columnDefinition = "TEXT")
     private String consultationNotes;
+
+    public enum AppointmentStatus {
+        SCHEDULED, COMPLETED, CANCELLED
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private AppointmentStatus status = AppointmentStatus.SCHEDULED;
 
     // Getters and Setters
     public Long getDoctorAppointmentId() {
@@ -71,14 +76,6 @@ public class DoctorAppointment {
         this.appointmentDate = appointmentDate;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public String getConsultationNotes() {
         return consultationNotes;
     }
@@ -86,4 +83,7 @@ public class DoctorAppointment {
     public void setConsultationNotes(String consultationNotes) {
         this.consultationNotes = consultationNotes;
     }
+
+    public AppointmentStatus getStatus() { return status; }
+    public void setStatus(AppointmentStatus status) { this.status = status; }
 }

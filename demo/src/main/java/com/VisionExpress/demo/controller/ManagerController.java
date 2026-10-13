@@ -23,31 +23,57 @@ public class ManagerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Manager>> getAllManagers() {
-        return ResponseEntity.ok(managerService.getAllManagers());
+    public ResponseEntity<List<Map<String, Object>>> getAllManagers() {
+
+        List<Map<String, Object>> managers =
+                managerService.getAllManagers()
+                        .stream()
+                        .map(this::toManagerResponse)
+                        .toList();
+
+        return ResponseEntity.ok(managers);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Manager> getManagerById(@PathVariable Integer id) {
+    public ResponseEntity<Map<String, Object>> getManagerById(
+            @PathVariable Long id) {
+
         return managerService.getManagerById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(manager -> ResponseEntity.ok(
+                        toManagerResponse(manager)))
+                .orElseGet(() ->
+                        ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Manager> createManager(@RequestBody Manager manager) {
-        Manager savedManager = managerService.saveManager(manager);
-        return new ResponseEntity<>(savedManager, HttpStatus.CREATED);
+    public ResponseEntity<String> createManager(
+            @RequestBody Manager manager) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body("Manager creation requires administrator authorization.");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteManager(@PathVariable Integer id) {
-        try {
-            managerService.deleteManager(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<String> deleteManager(
+            @PathVariable Long id) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body("Manager deletion requires administrator authorization.");
     }
 
+    private Map<String, Object> toManagerResponse(Manager manager) {
+
+        return Map.of(
+                "managerId", manager.getEmployeeId(),
+                "firstName", manager.getFirstName(),
+                "lastName", manager.getLastName(),
+                "roleTitle", manager.getRoleTitle(),
+                "assignedDepartment",
+                manager.getAssignedDepartment() == null
+                        ? ""
+                        : manager.getAssignedDepartment()
+        );
+    }
 }

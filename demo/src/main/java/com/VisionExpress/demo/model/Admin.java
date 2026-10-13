@@ -6,8 +6,11 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "admin")
-@PrimaryKeyJoinColumn(name = "user_id")
-public class Admin extends User {
+@PrimaryKeyJoinColumn(
+        name = "user_id",
+        referencedColumnName = "manager_id"
+)
+public class Admin extends Manager {
 
     // Default constructor required by JPA
     public Admin() {

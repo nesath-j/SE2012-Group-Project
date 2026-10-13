@@ -1,3 +1,4 @@
+
 package com.VisionExpress.demo.controller;
 
 import com.VisionExpress.demo.model.User;
@@ -6,6 +7,7 @@ import com.VisionExpress.demo.service.UserService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,8 +57,7 @@ public class UserController {
         if (registered) {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body("User registered successfully. User ID: "
-                            + user.getUserId());
+                    .body("Member registered successfully.");
         }
 
         return ResponseEntity
@@ -64,35 +65,38 @@ public class UserController {
                 .body("Registration failed: Invalid details or email already exists.");
     }
 
-    // 2. Login
-    // POST /api/users/login
-    @PostMapping("/login")
-    public ResponseEntity<String> login(
-            @RequestBody Map<String, String> request) {
-
-        String email = request.get("email");
-        String password = request.get("password");
-
-        boolean successful =
-                userService.login(email, password);
-
-        if (successful) {
-            return ResponseEntity.ok(
-                    "Credentials verified successfully.");
-        }
-
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body("Invalid credentials.");
-    }
-
     // 3. Update user profile
+    // Changed: int userId -> Long userId
     // PUT /api/users/profile/{userId}
-    // Demo only: authorization has not been implemented
+    // Demo only: authorization must be implemented
     @PutMapping("/profile/{userId}")
     public ResponseEntity<String> updateProfile(
-            @PathVariable int userId,
-            @RequestBody User user) {
+            @PathVariable Long userId,
+            @RequestBody User user,
+            Authentication authentication) {
+
+        if (authentication == null ||
+                !authentication.isAuthenticated()) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Please log in first.");
+        }
+
+        User currentUser = userService.findByEmail(
+                authentication.getName()
+        );
+
+        if (currentUser == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Authenticated user not found.");
+        }
+
+        if (!currentUser.getUserId().equals(userId)) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("You can only update your own profile.");
+        }
 
         boolean updated = userService.updateProfile(
                 userId,
@@ -123,13 +127,22 @@ public class UserController {
         return ResponseEntity.ok(products);
     }
 
-    // 5. View doctors (temporary demo data)
+    // 5. View doctor profiles from database
     // GET /api/users/doctors
     @GetMapping("/doctors")
-    public ResponseEntity<List<String>> viewDoctorProfiles() {
+    public ResponseEntity<List<Map<String, Object>>> viewDoctorProfiles() {
 
-        List<String> doctors =
-                userService.viewDoctorProfiles();
+        List<Map<String, Object>> doctors =
+                userService.viewDoctorProfiles()
+                        .stream()
+                        .map(doctor -> Map.<String, Object>of(
+                                "doctorId", doctor.getDoctorId(),
+                                "firstName", doctor.getFirstName(),
+                                "lastName", doctor.getLastName(),
+                                "specialization", doctor.getSpecialization(),
+                                "licenseNumber", doctor.getLicenseNumber()
+                        ))
+                        .toList();
 
         return ResponseEntity.ok(doctors);
     }
@@ -144,4 +157,5 @@ public class UserController {
 
         return ResponseEntity.ok(services);
     }
+
 }

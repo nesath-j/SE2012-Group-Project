@@ -26,7 +26,12 @@ public class AdminService {
     }
 
     // 1. Manage user accounts
-    public void manageUserAccounts(int userId, String action) {
+    public void manageUserAccounts(Long userId, String action) {
+
+        if (userId == null) {
+            throw new IllegalArgumentException(
+                    "User ID cannot be null.");
+        }
 
         if (action == null || action.isBlank()) {
             throw new IllegalArgumentException(

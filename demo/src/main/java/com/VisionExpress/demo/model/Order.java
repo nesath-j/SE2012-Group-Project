@@ -27,9 +27,12 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
     private PaymentStatus paymentStatus = PaymentStatus.PENDING; // Default state
-
     @Column(name = "payment_slip")
-    private String paymentSlip; // Stores the file path or file name of the uploaded slip
+    private String paymentSlip;
+    @Column(name = "member_id")
+    private Long memberId;
+    @Column(name = "loyalty_points_awarded", nullable = false)
+    private boolean loyaltyPointsAwarded = false;
 
     public enum PaymentStatus {
         PENDING,
@@ -85,4 +88,10 @@ public class Order {
 
     public String getPaymentSlip() { return paymentSlip; }
     public void setPaymentSlip(String paymentSlip) { this.paymentSlip = paymentSlip; }
+
+    public Long getMemberId() { return memberId; }
+    public void setMemberId(Long memberId) { this.memberId = memberId; }
+
+    public boolean isLoyaltyPointsAwarded() { return loyaltyPointsAwarded; }
+    public void setLoyaltyPointsAwarded(boolean loyaltyPointsAwarded) { this.loyaltyPointsAwarded = loyaltyPointsAwarded; }
 }

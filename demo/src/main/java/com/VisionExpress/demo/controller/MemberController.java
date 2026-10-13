@@ -22,12 +22,14 @@ public class MemberController {
     // 1. View available loyalty points
     @GetMapping("/{memberId}/points")
     public ResponseEntity<?> viewLoyaltyPoints(
-            @PathVariable int memberId) {
+            @PathVariable Long memberId) {
 
         try {
             int points = memberService.viewLoyaltyPoints(memberId);
+
             return ResponseEntity.ok(
                     Map.of("loyaltyPoints", points));
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -38,12 +40,14 @@ public class MemberController {
     // 2. View lifetime earned points
     @GetMapping("/{memberId}/total-points")
     public ResponseEntity<?> getTotalEarnedPoints(
-            @PathVariable int memberId) {
+            @PathVariable Long memberId) {
 
         try {
             int points = memberService.getTotalEarnedPoints(memberId);
+
             return ResponseEntity.ok(
                     Map.of("totalEarnedPoints", points));
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -54,12 +58,14 @@ public class MemberController {
     // 3. View current loyalty tier
     @GetMapping("/{memberId}/tier")
     public ResponseEntity<?> getLoyaltyTier(
-            @PathVariable int memberId) {
+            @PathVariable Long memberId) {
 
         try {
             String tier = memberService.getLoyaltyTier(memberId);
+
             return ResponseEntity.ok(
                     Map.of("tier", tier));
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -70,12 +76,14 @@ public class MemberController {
     // 4. View tier discount percentage
     @GetMapping("/{memberId}/discount")
     public ResponseEntity<?> getTierDiscount(
-            @PathVariable int memberId) {
+            @PathVariable Long memberId) {
 
         try {
             double discount = memberService.getTierDiscount(memberId);
+
             return ResponseEntity.ok(
                     Map.of("discountPercentage", discount));
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -86,7 +94,7 @@ public class MemberController {
     // 5. Preview point redemption
     @GetMapping("/{memberId}/redeem")
     public ResponseEntity<?> redeemPoints(
-            @PathVariable int memberId,
+            @PathVariable Long memberId,
             @RequestParam int points) {
 
         try {
@@ -106,7 +114,7 @@ public class MemberController {
     // 6. Store prescription reference
     @PutMapping("/{memberId}/prescription")
     public ResponseEntity<?> uploadPrescription(
-            @PathVariable int memberId,
+            @PathVariable Long memberId,
             @RequestBody Map<String, String> request) {
 
         try {

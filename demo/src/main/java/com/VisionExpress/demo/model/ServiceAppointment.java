@@ -13,10 +13,10 @@ public class ServiceAppointment {
     private Integer serviceAppointmentId;
 
     @Column(name = "member_id", nullable = false)
-    private Integer memberId;
+    private Long memberId;
 
     @Column(name = "employee_id", nullable = false)
-    private Integer employeeId;
+    private Long employeeId;
 
     @Column(name = "service_type", nullable = false, length = 100)
     private String serviceType;
@@ -38,19 +38,19 @@ public class ServiceAppointment {
         this.serviceAppointmentId = serviceAppointmentId;
     }
 
-    public Integer getMemberId() {
+    public Long getMemberId() {
         return memberId;
     }
 
-    public void setMemberId(Integer memberId) {
+    public void setMemberId(Long memberId) {
         this.memberId = memberId;
     }
 
-    public Integer getEmployeeId() {
+    public Long getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(Integer employeeId) {
+    public void setEmployeeId(Long employeeId) {
         this.employeeId = employeeId;
     }
 

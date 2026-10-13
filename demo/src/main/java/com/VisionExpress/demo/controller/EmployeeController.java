@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -23,45 +24,80 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployees() {
-        return ResponseEntity.ok(employeeService.getAllEmployees());
+    public ResponseEntity<List<Map<String, Object>>> getAllEmployees() {
+
+        List<Map<String, Object>> employees = employeeService
+                .getAllEmployees()
+                .stream()
+                .map(this::toEmployeeResponse)
+                .toList();
+
+        return ResponseEntity.ok(employees);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Integer id) {
+    public ResponseEntity<Map<String, Object>> getEmployeeById(
+            @PathVariable Long id) {
+
         return employeeService.getEmployeeById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(employee -> ResponseEntity.ok(
+                        toEmployeeResponse(employee)))
+                .orElseGet(() ->
+                        ResponseEntity.notFound().build());
     }
 
     @GetMapping("/department/{department}")
-    public ResponseEntity<List<Employee>> getEmployeesByDepartment(@PathVariable String department) {
-        return ResponseEntity.ok(employeeService.getEmployeesByDepartment(department));
+    public ResponseEntity<List<Map<String, Object>>> getEmployeesByDepartment(
+            @PathVariable String department) {
+
+        List<Map<String, Object>> employees = employeeService
+                .getEmployeesByDepartment(department)
+                .stream()
+                .map(this::toEmployeeResponse)
+                .toList();
+
+        return ResponseEntity.ok(employees);
     }
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
-        Employee savedEmployee = employeeService.saveEmployee(employee);
-        return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
+    public ResponseEntity<String> createEmployee(
+            @RequestBody Employee employee) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body("Employee creation requires administrator authorization.");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
-        try {
-            Employee updated = employeeService.updateEmployee(id, employee);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<String> updateEmployee(
+            @PathVariable Long id,
+            @RequestBody Employee employee) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body("Employee updates require administrator authorization.");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Integer id) {
-        try {
-            employeeService.deleteEmployee(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<String> deleteEmployee(
+            @PathVariable Long id) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body("Employee deletion requires administrator authorization.");
+    }
+
+    private Map<String, Object> toEmployeeResponse(Employee employee) {
+
+        return Map.of(
+                "employeeId", employee.getEmployeeId(),
+                "firstName", employee.getFirstName(),
+                "lastName", employee.getLastName(),
+                "roleTitle", employee.getRoleTitle(),
+                "assignedDepartment",
+                employee.getAssignedDepartment() == null
+                        ? ""
+                        : employee.getAssignedDepartment()
+        );
     }
 }

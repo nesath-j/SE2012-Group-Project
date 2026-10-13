@@ -1,9 +1,6 @@
 package com.VisionExpress.demo.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "members")
@@ -16,7 +13,7 @@ public class Member extends User {
     @Column(name = "total_earned_points", nullable = false)
     private int totalEarnedPoints = 0;
 
-    @Column(name = "prescription_path", length = 255)
+    @Column(name = "prescription_doc_path", length = 255)
     private String prescriptionPath;
 
     // Default constructor required by JPA

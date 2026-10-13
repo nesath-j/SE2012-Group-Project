@@ -1,95 +1,202 @@
 import React from 'react';
-import { Glasses, Phone, Mail, MapPin, ShieldCheck, Heart } from 'lucide-react';
+import { Glasses, Phone, Mail, MapPin, ShieldCheck, Clock, Award } from 'lucide-react';
 
-export default function Footer({ onNavigate }) {
+export default function Footer({ onNavigateTab }) {
   return (
-    <footer style={{ background: '#050811', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '60px 0 30px' }}>
+    <footer style={{
+      backgroundColor: '#090e17',
+      color: '#94a3b8',
+      borderTop: '1px solid #1e293b',
+      marginTop: 'auto',
+      paddingTop: '3.5rem',
+      paddingBottom: '2rem',
+    }}>
       <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', marginBottom: '48px' }}>
-          {/* Brand Info */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: '2.5rem',
+          marginBottom: '3rem',
+        }}>
+          {/* Col 1: Brand & Clinical Guarantee */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', cursor: 'pointer' }} onClick={() => onNavigate('catalog')}>
-              <div className="brand-icon-wrapper" style={{ width: '36px', height: '36px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.65rem',
+              marginBottom: '1rem',
+            }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                color: '#ffffff',
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
                 <Glasses size={20} />
               </div>
-              <span className="brand-text-name" style={{ fontSize: '1.2rem' }}>
-                Vision<span style={{ color: '#38bdf8' }}>Express</span>
-              </span>
+              <div style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '1.2rem',
+                fontWeight: 800,
+                color: '#ffffff',
+              }}>
+                VISION<span style={{ color: '#0ea5e9' }}>EXPRESS</span>
+              </div>
             </div>
-            <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: '1.6', marginBottom: '16px' }}>
-              Comprehensive optometry, precision digital refraction, and curated luxury eyewear. Committed to optimal ocular wellness.
+            <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#94a3b8', marginBottom: '1.25rem' }}>
+              Sri Lanka's leading optical care institution providing high-precision vision examinations, luxury eyewear collections, lens fitting laboratories, and tiered loyalty rewards.
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: '#10b981' }}>
-              <ShieldCheck size={16} />
-              <span>Certified ISO 9001 Optical Dispensary</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#38bdf8' }}>
+              <ShieldCheck size={18} />
+              <span>Accredited Doctors & Opticians</span>
             </div>
           </div>
 
-          {/* Quick Navigation */}
+          {/* Col 2: Optical Services & Links */}
           <div>
-            <h4 style={{ fontSize: '0.95rem', marginBottom: '16px', color: '#fff' }}>Optical Care</h4>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem' }}>
+            <h4 style={{ color: '#ffffff', fontSize: '0.975rem', marginBottom: '1rem', letterSpacing: '0.02em' }}>
+              CLINICAL SERVICES
+            </h4>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.875rem' }}>
               <li>
-                <a href="#catalog" onClick={(e) => { e.preventDefault(); onNavigate('catalog'); }} style={{ color: '#94a3b8', textDecoration: 'none' }}>
-                  Designer Frames & Sunglasses
-                </a>
+                <button
+                  onClick={() => onNavigateTab('doctors')}
+                  style={{ color: '#94a3b8', cursor: 'pointer', textAlign: 'left', transition: 'color 0.15s' }}
+                  onMouseEnter={(e) => e.target.style.color = '#38bdf8'}
+                  onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                >
+                  Doctor Eye Consultations
+                </button>
               </li>
               <li>
-                <a href="#doctors" onClick={(e) => { e.preventDefault(); onNavigate('doctors'); }} style={{ color: '#94a3b8', textDecoration: 'none' }}>
-                  Board-Certified Doctors
-                </a>
+                <button
+                  onClick={() => onNavigateTab('services')}
+                  style={{ color: '#94a3b8', cursor: 'pointer', textAlign: 'left', transition: 'color 0.15s' }}
+                  onMouseEnter={(e) => e.target.style.color = '#38bdf8'}
+                  onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                >
+                  Precision Frame Adjustment
+                </button>
               </li>
               <li>
-                <a href="#services" onClick={(e) => { e.preventDefault(); onNavigate('services'); }} style={{ color: '#94a3b8', textDecoration: 'none' }}>
-                  Clinical Eye Examination
-                </a>
+                <button
+                  onClick={() => onNavigateTab('services')}
+                  style={{ color: '#94a3b8', cursor: 'pointer', textAlign: 'left', transition: 'color 0.15s' }}
+                  onMouseEnter={(e) => e.target.style.color = '#38bdf8'}
+                  onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                >
+                  Digital Lens Fitting & Edging
+                </button>
               </li>
               <li>
-                <a href="#tryon" onClick={(e) => { e.preventDefault(); onNavigate('tryon'); }} style={{ color: '#94a3b8', textDecoration: 'none' }}>
-                  Virtual 3D Frame Mirror
-                </a>
+                <button
+                  onClick={() => onNavigateTab('services')}
+                  style={{ color: '#94a3b8', cursor: 'pointer', textAlign: 'left', transition: 'color 0.15s' }}
+                  onMouseEnter={(e) => e.target.style.color = '#38bdf8'}
+                  onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                >
+                  Ultrasonic Cleaning & Repair
+                </button>
               </li>
             </ul>
           </div>
 
-          {/* Clinic Hours */}
+          {/* Col 3: Rewards & Management */}
           <div>
-            <h4 style={{ fontSize: '0.95rem', marginBottom: '16px', color: '#fff' }}>Clinic Schedule</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.83rem', color: '#94a3b8' }}>
-              <div><strong>Monday - Friday:</strong> 08:30 AM – 07:00 PM</div>
-              <div><strong>Saturday:</strong> 09:00 AM – 05:00 PM</div>
-              <div><strong>Sunday:</strong> 10:00 AM – 03:00 PM</div>
-              <div style={{ marginTop: '8px', color: '#38bdf8' }}>Emergency Triage: 24/7 on call</div>
-            </div>
+            <h4 style={{ color: '#ffffff', fontSize: '0.975rem', marginBottom: '1rem', letterSpacing: '0.02em' }}>
+              MEMBER & STAFF
+            </h4>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.875rem' }}>
+              <li>
+                <button
+                  onClick={() => onNavigateTab('rewards')}
+                  style={{ color: '#94a3b8', cursor: 'pointer', textAlign: 'left' }}
+                  onMouseEnter={(e) => e.target.style.color = '#38bdf8'}
+                  onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                >
+                  Loyalty Tiers (Bronze to Platinum)
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigateTab('orders')}
+                  style={{ color: '#94a3b8', cursor: 'pointer', textAlign: 'left' }}
+                  onMouseEnter={(e) => e.target.style.color = '#38bdf8'}
+                  onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                >
+                  Payment Slip Upload & Tracking
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigateTab('staff')}
+                  style={{ color: '#94a3b8', cursor: 'pointer', textAlign: 'left' }}
+                  onMouseEnter={(e) => e.target.style.color = '#38bdf8'}
+                  onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                >
+                  Doctor Consultation Desk
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigateTab('staff')}
+                  style={{ color: '#94a3b8', cursor: 'pointer', textAlign: 'left' }}
+                  onMouseEnter={(e) => e.target.style.color = '#38bdf8'}
+                  onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                >
+                  Admin Payment Confirmation
+                </button>
+              </li>
+            </ul>
           </div>
 
-          {/* Contact Details */}
+          {/* Col 4: Store Hours & Contact */}
           <div>
-            <h4 style={{ fontSize: '0.95rem', marginBottom: '16px', color: '#fff' }}>Get in Touch</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.83rem', color: '#94a3b8' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <MapPin size={16} color="#38bdf8" />
-                <span>450 Optical Boulevard, Suite 100</span>
+            <h4 style={{ color: '#ffffff', fontSize: '0.975rem', marginBottom: '1rem', letterSpacing: '0.02em' }}>
+              STORE & CLINIC
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', gap: '0.65rem' }}>
+                <Clock size={18} color="#0ea5e9" style={{ flexShrink: 0 }} />
+                <div>
+                  <strong style={{ color: '#e2e8f0' }}>Mon – Sat:</strong> 9:00 AM – 7:30 PM<br />
+                  <strong style={{ color: '#e2e8f0' }}>Sunday:</strong> 10:00 AM – 5:00 PM
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Phone size={16} color="#10b981" />
-                <span>+1 (800) 555-VISION</span>
+              <div style={{ display: 'flex', gap: '0.65rem' }}>
+                <MapPin size={18} color="#0ea5e9" style={{ flexShrink: 0 }} />
+                <span>No. 142 Galle Road, Colombo 03, Sri Lanka</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Mail size={16} color="#fbbf24" />
-                <span>appointments@visionexpress.com</span>
+              <div style={{ display: 'flex', gap: '0.65rem' }}>
+                <Phone size={18} color="#0ea5e9" style={{ flexShrink: 0 }} />
+                <span>+94 11 257 8940 (Optical Care Hotline)</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', fontSize: '0.78rem', color: '#64748b' }}>
+        {/* Bottom credits */}
+        <div style={{
+          borderTop: '1px solid #1e293b',
+          paddingTop: '1.5rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '1rem',
+          fontSize: '0.8rem',
+        }}>
           <div>
-            © 2026 VisionExpress Optical Systems. All rights reserved.
+            © 2026 Vision Express Management System. Built with React Vite & Spring Boot 8081.
           </div>
-          <div>
-            Spring Boot API Integration: <code style={{ color: '#38bdf8' }}>http://localhost:8081</code>
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            <span>Privacy Policy</span>
+            <span>Terms of Service</span>
+            <span>Optical Standards Compliance</span>
           </div>
         </div>
       </div>

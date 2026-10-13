@@ -77,7 +77,7 @@ public class LoyaltyTierController {
     // 4. View a member's loyalty tier
     @GetMapping("/member/{memberId}")
     public ResponseEntity<?> getMemberTier(
-            @PathVariable int memberId) {
+            @PathVariable Long memberId) {
 
         try {
             LoyaltyTier tier =
@@ -125,7 +125,7 @@ public class LoyaltyTierController {
     // 6. View a member's discount percentage
     @GetMapping("/member/{memberId}/discount")
     public ResponseEntity<?> getMemberDiscount(
-            @PathVariable int memberId) {
+            @PathVariable Long memberId) {
 
         try {
             double discount =

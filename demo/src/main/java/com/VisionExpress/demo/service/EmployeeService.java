@@ -22,7 +22,7 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
-    public Optional<Employee> getEmployeeById(Integer employeeId) {
+    public Optional<Employee> getEmployeeById(Long employeeId) {
         return employeeRepository.findById(employeeId);
     }
 
@@ -34,7 +34,7 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
-    public Employee updateEmployee(Integer employeeId, Employee updatedEmployee) {
+    public Employee updateEmployee(Long employeeId, Employee updatedEmployee) {
         return employeeRepository.findById(employeeId)
                 .map(existingEmployee -> {
                     existingEmployee.setRoleTitle(updatedEmployee.getRoleTitle());
@@ -44,7 +44,7 @@ public class EmployeeService {
                 .orElseThrow(() -> new RuntimeException("Employee not found with id: " + employeeId));
     }
 
-    public void deleteEmployee(Integer employeeId) {
+    public void deleteEmployee(Long employeeId) {
         if (!employeeRepository.existsById(employeeId)) {
             throw new RuntimeException("Employee not found with id: " + employeeId);
         }
