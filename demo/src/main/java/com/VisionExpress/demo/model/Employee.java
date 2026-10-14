@@ -3,12 +3,9 @@ package com.VisionExpress.demo.model;
 import jakarta.persistence.*;
 
 @Entity
+@PrimaryKeyJoinColumn(name = "employee_id", referencedColumnName = "user_id")
 @Table(name = "EMPLOYEE")
-public class Employee {
-
-    @Id
-    @Column(name = "employee_id")
-    private Integer employeeId;
+public class Employee extends User {
 
     @Column(name = "role_title", nullable = false, length = 50)
     private String roleTitle;
@@ -17,14 +14,15 @@ public class Employee {
     private String assignedDepartment;
 
     public Employee() {
+        super();
     }
 
-    public Integer getEmployeeId() {
-        return employeeId;
+    public Long getEmployeeId() {
+        return getUserId();
     }
 
-    public void setEmployeeId(Integer employeeId) {
-        this.employeeId = employeeId;
+    public void setEmployeeId(Long employeeId) {
+        setUserId(employeeId);
     }
 
     public String getRoleTitle() {

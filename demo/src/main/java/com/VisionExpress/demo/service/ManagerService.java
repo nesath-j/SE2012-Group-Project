@@ -5,10 +5,7 @@ import com.VisionExpress.demo.repository.ManagerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,22 +22,30 @@ public class ManagerService {
         return managerRepository.findAll();
     }
 
-    public Optional<Manager> getManagerById(Integer managerId) {
+    public Optional<Manager> getManagerById(Long managerId) {
         return managerRepository.findById(managerId);
     }
 
     public Manager saveManager(Manager manager) {
-        if (manager.getEmployeeId() == null) {
-            throw new IllegalArgumentException("Manager ID must match an existing valid Employee ID.");
+        if (manager == null) {
+            throw new IllegalArgumentException(
+                    "Manager cannot be null.");
         }
-        return managerRepository.save(manager);
+
+        throw new UnsupportedOperationException(
+                "Manager creation or Employee promotion must be " +
+                        "implemented with the User-Employee-Manager " +
+                        "inheritance structure.");
     }
 
-    public void deleteManager(Integer managerId) {
-        if (!managerRepository.existsById(managerId)) {
-            throw new RuntimeException("Manager not found with ID: " + managerId);
+    public void deleteManager(Long managerId) {
+        if (managerId == null) {
+            throw new IllegalArgumentException(
+                    "Manager ID cannot be null.");
         }
-        managerRepository.deleteById(managerId);
-    }
 
+        throw new UnsupportedOperationException(
+                "Manager deletion is disabled until account " +
+                        "management and authorization are implemented.");
+    }
 }

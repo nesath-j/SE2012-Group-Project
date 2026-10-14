@@ -35,6 +35,11 @@ public class ServiceAppointmentService {
             throw new IllegalArgumentException("Appointment date and time must be provided.");
         }
 
+        if (!appointment.getAppointmentDate().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException(
+                    "Cannot book a service appointment in the past.");
+        }
+
         // Step 1: Set status to In-Progress for slot verification
         appointment.setServiceStatus("In-Progress");
 
@@ -62,11 +67,11 @@ public class ServiceAppointmentService {
                 .orElseThrow(() -> new RuntimeException("Appointment not found with ID: " + id));
     }
 
-    public List<ServiceAppointment> getAppointmentsByMember(Integer memberId) {
+    public List<ServiceAppointment> getAppointmentsByMember(Long memberId) {
         return serviceAppointmentRepository.findByMemberId(memberId);
     }
 
-    public List<ServiceAppointment> getAppointmentsByEmployee(Integer employeeId) {
+    public List<ServiceAppointment> getAppointmentsByEmployee(Long employeeId) {
         return serviceAppointmentRepository.findByEmployeeId(employeeId);
     }
 
@@ -86,16 +91,47 @@ public class ServiceAppointmentService {
         if ("Completed".equals(appointment.getServiceStatus())) {
             throw new IllegalStateException("Cannot cancel a completed appointment.");
         }
+        if ("Cancelled".equals(appointment.getServiceStatus())) {
+            throw new IllegalStateException("Appointment is already cancelled.");
+        }
         appointment.setServiceStatus("Cancelled");
         return serviceAppointmentRepository.save(appointment);
     }
 
+
     public ServiceAppointment updateStatus(Integer id, String newStatus) {
+
         if (!VALID_STATUSES.contains(newStatus)) {
             throw new IllegalArgumentException("Invalid status value.");
         }
+
         ServiceAppointment appointment = getAppointmentById(id);
-        appointment.setServiceStatus(newStatus);
-        return serviceAppointmentRepository.save(appointment);
+
+        String currentStatus = appointment.getServiceStatus();
+
+        if ("Completed".equals(currentStatus) ||
+                "Cancelled".equals(currentStatus)) {
+            throw new IllegalStateException(
+                    "Completed or cancelled appointments cannot be updated.");
+        }
+
+        if ("Completed".equals(newStatus)) {
+            return completeAppointment(id);
+        }
+
+        if ("Cancelled".equals(newStatus)) {
+            return cancelAppointment(id);
+        }
+
+        if (!currentStatus.equals(newStatus)) {
+            throw new IllegalStateException(
+                    "This status change is not allowed.");
+        }
+
+        return appointment;
+    }
+
+    public List<String> getAvailableServices() {
+        return List.copyOf(VALID_SERVICES);
     }
 }

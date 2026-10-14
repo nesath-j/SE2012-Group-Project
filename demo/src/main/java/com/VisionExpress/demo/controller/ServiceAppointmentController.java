@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/service-appointments")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 public class ServiceAppointmentController {
 
     private final ServiceAppointmentService appointmentService;
@@ -21,11 +20,31 @@ public class ServiceAppointmentController {
         this.appointmentService = appointmentService;
     }
 
+
     @PostMapping("/add")
-    public ResponseEntity<ServiceAppointment> bookAppointment(@RequestBody ServiceAppointment appointment) {
-        ServiceAppointment created = appointmentService.bookAppointment(appointment);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    public ResponseEntity<?> bookAppointment(
+            @RequestBody ServiceAppointment appointment) {
+
+        try {
+            ServiceAppointment created =
+                    appointmentService.bookAppointment(appointment);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(created);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(e.getMessage());
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        }
     }
+
 
     @GetMapping
     public ResponseEntity<List<ServiceAppointment>> getAllAppointments() {
@@ -38,12 +57,12 @@ public class ServiceAppointmentController {
     }
 
     @GetMapping("/member/{memberId}")
-    public ResponseEntity<List<ServiceAppointment>> getAppointmentsByMember(@PathVariable Integer memberId) {
+    public ResponseEntity<List<ServiceAppointment>> getAppointmentsByMember(@PathVariable Long memberId) {
         return ResponseEntity.ok(appointmentService.getAppointmentsByMember(memberId));
     }
 
     @GetMapping("/employee/{employeeId}")
-    public ResponseEntity<List<ServiceAppointment>> getAppointmentsByEmployee(@PathVariable Integer employeeId) {
+    public ResponseEntity<List<ServiceAppointment>> getAppointmentsByEmployee(@PathVariable Long employeeId) {
         return ResponseEntity.ok(appointmentService.getAppointmentsByEmployee(employeeId));
     }
 
