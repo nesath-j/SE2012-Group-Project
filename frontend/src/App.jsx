@@ -1,42 +1,63 @@
-import React from 'react';
-import { AppProvider, useApp } from './context/AppContext';
-import { Navbar } from './components/Navbar';
-import { Sidebar } from './components/Sidebar';
-import { Dashboard } from './components/Dashboard';
-import { AppointmentsView } from './components/AppointmentsView';
-import { CouriersView } from './components/CouriersView';
-import { EmployeesView } from './components/EmployeesView';
-import { ProductsView } from './components/ProductsView';
-import { ApiExplorerView } from './components/ApiExplorerView';
-import { Toast } from './components/Toast';
+import React, { useState } from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Toast from './components/Toast';
+import AuthModal from './components/AuthModal';
+import CartDrawer from './components/CartDrawer';
 
-const MainView = () => {
-  const { activeTab } = useApp();
+import HomeShop from './pages/HomeShop';
+import DoctorAppointments from './pages/DoctorAppointments';
+import OpticalServices from './pages/OpticalServices';
+import MembershipRewards from './pages/MembershipRewards';
+import MyOrders from './pages/MyOrders';
+import StaffPortal from './pages/StaffPortal';
+
+function MainLayout() {
+  const [activeTab, setActiveTab] = useState('shop');
 
   return (
-    <main className="page-wrapper">
-      {activeTab === 'dashboard' && <Dashboard />}
-      {activeTab === 'appointments' && <AppointmentsView />}
-      {activeTab === 'couriers' && <CouriersView />}
-      {activeTab === 'employees' && <EmployeesView />}
-      {activeTab === 'products' && <ProductsView />}
-      {activeTab === 'api-explorer' && <ApiExplorerView />}
-    </main>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
+      {/* Sticky Top Navbar */}
+      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* Main Dynamic View Content */}
+      <main style={{ flex: 1, width: '100%' }}>
+        {activeTab === 'shop' && (
+          <HomeShop onNavigateTab={setActiveTab} />
+        )}
+        {activeTab === 'doctors' && (
+          <DoctorAppointments />
+        )}
+        {activeTab === 'services' && (
+          <OpticalServices />
+        )}
+        {activeTab === 'rewards' && (
+          <MembershipRewards />
+        )}
+        {activeTab === 'orders' && (
+          <MyOrders onNavigateShop={() => setActiveTab('shop')} />
+        )}
+        {activeTab === 'staff' && (
+          <StaffPortal />
+        )}
+      </main>
+
+      {/* Global Modals & Slide-in Drawers */}
+      <CartDrawer onNavigateOrders={() => setActiveTab('orders')} />
+      <AuthModal />
+      <Toast />
+
+      {/* Optical Retail Footer */}
+      <Footer onNavigateTab={setActiveTab} />
+    </div>
   );
-};
+}
 
 export default function App() {
   return (
-    <AppProvider>
-      <div className="ambient-glow" />
-      <div className="app-container">
-        <Sidebar />
-        <div className="main-content">
-          <Navbar />
-          <MainView />
-        </div>
-      </div>
-      <Toast />
-    </AppProvider>
+    <AuthProvider>
+      <MainLayout />
+    </AuthProvider>
   );
 }

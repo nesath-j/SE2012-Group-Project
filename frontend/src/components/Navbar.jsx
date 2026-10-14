@@ -1,211 +1,453 @@
-import React from 'react';
-import { useApp } from '../context/AppContext';
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import {
   Glasses,
-  Sun,
-  Moon,
-  Wifi,
-  WifiOff,
-  RefreshCw,
-  Search,
-  PlusCircle,
-  Database
+  ShoppingBag,
+  Calendar,
+  Wrench,
+  Award,
+  Package,
+  ShieldCheck,
+  User,
+  LogOut,
+  ChevronDown,
+  Menu,
+  X,
+  Radio,
+  Sparkles
 } from 'lucide-react';
+import { DEMO_PRESET_USERS } from '../services/mockData';
 
-export const Navbar = () => {
+export default function Navbar({ activeTab, setActiveTab }) {
   const {
-    theme,
-    toggleTheme,
-    backendOnline,
-    checkingBackend,
-    pingBackend,
-    searchQuery,
-    setSearchQuery,
-    setActiveTab
-  } = useApp();
+    user,
+    role,
+    logout,
+    setIsAuthModalOpen,
+    setAuthModalMode,
+    switchDemoUser,
+    cartCount,
+    setIsCartOpen,
+    isBackendOnline
+  } = useAuth();
+
+  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navItems = [
+    { id: 'shop', label: 'Eyewear & Shop', icon: Glasses },
+    { id: 'doctors', label: 'Doctor Clinic', icon: Calendar },
+    { id: 'services', label: 'Optical Services', icon: Wrench },
+    { id: 'rewards', label: 'Loyalty Rewards', icon: Award },
+    { id: 'orders', label: 'My Orders', icon: Package, authOnly: true },
+    { id: 'staff', label: 'Staff Workspace', icon: ShieldCheck, highlight: true },
+  ];
+
+  const handleNavClick = (id) => {
+    setActiveTab(id);
+    setIsMobileMenuOpen(false);
+  };
 
   return (
-    <header
-      style={{
-        height: '70px',
-        borderBottom: '1px solid var(--border-subtle)',
-        background: 'var(--bg-glass)',
-        backdropFilter: 'blur(16px)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
+    <header style={{
+      position: 'sticky',
+      top: 0,
+      zIndex: 1000,
+      backgroundColor: 'rgba(255, 255, 255, 0.94)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+      borderBottom: '1px solid #e2e8f0',
+      transition: 'all 0.2s ease',
+    }}>
+      {/* Top micro bar: Spring Boot 8081 Status + Quick Role Switcher */}
+      <div style={{
+        background: '#090e17',
+        color: '#94a3b8',
+        fontSize: '0.785rem',
+        padding: '0.4rem 1.5rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 2rem',
-      }}
-    >
-      {/* Brand & Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        flexWrap: 'wrap',
+        gap: '0.5rem',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: isBackendOnline ? '#10b981' : '#f59e0b',
+              boxShadow: isBackendOnline ? '0 0 8px #10b981' : 'none',
+            }} />
+            <strong style={{ color: '#e2e8f0' }}>Spring Boot (Port 8081):</strong>
+            <span style={{ color: isBackendOnline ? '#34d399' : '#fbbf24' }}>
+              {isBackendOnline ? 'Live & Connected' : 'Ready (Auto-sync Enabled)'}
+            </span>
+          </span>
+          <span style={{ color: '#334155' }}>|</span>
+          <span style={{ display: 'none', md: 'inline' }}>
+            Vision Express Central Management System
+          </span>
+        </div>
+
+        {/* Instant Role Previewer */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', position: 'relative' }}>
+          <span style={{ color: '#64748b' }}>Current Persona:</span>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '6px',
+                padding: '0.2rem 0.55rem',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                cursor: 'pointer',
+              }}
+            >
+              <span style={{
+                color: role === 'ADMIN' ? '#f43f5e' : role === 'DOCTOR' ? '#0ea5e9' : role === 'EMPLOYEE' ? '#10b981' : '#f59e0b'
+              }}>●</span>
+              {user ? `${user.firstName} (${role})` : 'Guest'}
+              <ChevronDown size={12} />
+            </button>
+
+            {isRoleDropdownOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: '120%',
+                  backgroundColor: '#ffffff',
+                  color: '#0f172a',
+                  borderRadius: '10px',
+                  boxShadow: '0 12px 30px rgba(0, 0, 0, 0.2)',
+                  border: '1px solid #e2e8f0',
+                  width: '260px',
+                  padding: '0.5rem',
+                  zIndex: 2000,
+                  textAlign: 'left',
+                }}
+              >
+                <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', padding: '0.4rem 0.6rem', textTransform: 'uppercase' }}>
+                  Switch Test Role
+                </div>
+                {DEMO_PRESET_USERS.map((preset) => (
+                  <button
+                    key={preset.userId}
+                    onClick={() => {
+                      switchDemoUser(preset);
+                      setIsRoleDropdownOpen(false);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.6rem',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                      fontSize: '0.825rem',
+                      color: user?.email === preset.email ? '#0284c7' : '#1e293b',
+                      backgroundColor: user?.email === preset.email ? '#f0f9ff' : 'transparent',
+                      fontWeight: user?.email === preset.email ? 700 : 500,
+                      border: 'none',
+                    }}
+                  >
+                    <div>
+                      <div>{preset.firstName} {preset.lastName}</div>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{preset.email}</div>
+                    </div>
+                    <span className={`badge badge-${preset.role === 'ADMIN' ? 'rose' : preset.role === 'DOCTOR' ? 'primary' : preset.role === 'EMPLOYEE' ? 'emerald' : 'amber'}`}>
+                      {preset.role}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Navbar Bar */}
+      <div className="container" style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0.85rem 1.5rem',
+      }}>
+        {/* Brand Logo */}
         <div
-          onClick={() => setActiveTab('dashboard')}
+          onClick={() => setActiveTab('shop')}
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '10px',
+            gap: '0.65rem',
             cursor: 'pointer',
-            userSelect: 'none'
+            userSelect: 'none',
           }}
         >
-          <div
+          <div style={{
+            background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+            color: '#ffffff',
+            width: '42px',
+            height: '42px',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(2, 132, 199, 0.35)',
+          }}>
+            <Glasses size={24} strokeWidth={2.2} />
+          </div>
+          <div>
+            <div style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '1.25rem',
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              color: '#0f172a',
+              lineHeight: 1.1,
+            }}>
+              VISION<span style={{ color: '#0284c7' }}>EXPRESS</span>
+            </div>
+            <div style={{
+              fontSize: '0.675rem',
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              color: '#64748b',
+              textTransform: 'uppercase',
+            }}>
+              Precision Eye Care & Luxury
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Navigation Links */}
+        <nav style={{
+          display: 'none',
+          alignItems: 'center',
+          gap: '0.25rem',
+        }} className="desktop-nav">
+          <style>{`
+            @media (min-width: 900px) {
+              .desktop-nav { display: flex !important; }
+              .mobile-toggle { display: none !important; }
+            }
+          `}</style>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  padding: '0.6rem 0.95rem',
+                  borderRadius: '9999px',
+                  fontSize: '0.875rem',
+                  fontWeight: isActive ? 700 : 500,
+                  color: isActive ? '#0284c7' : item.highlight ? '#0369a1' : '#475569',
+                  backgroundColor: isActive ? '#e0f2fe' : item.highlight ? '#f0f9ff' : 'transparent',
+                  border: item.highlight ? '1px dashed #bae6fd' : 'none',
+                  transition: 'all 0.15s ease',
+                  cursor: 'pointer',
+                }}
+              >
+                <Icon size={16} />
+                <span>{item.label}</span>
+                {item.highlight && (
+                  <span style={{
+                    fontSize: '0.65rem',
+                    background: '#0284c7',
+                    color: '#fff',
+                    borderRadius: '4px',
+                    padding: '1px 5px',
+                    fontWeight: 700
+                  }}>
+                    Staff
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Right Action Icons: Cart & Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* Shopping Cart button */}
+          <button
+            onClick={() => setIsCartOpen(true)}
             style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '10px',
-              background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)',
+              position: 'relative',
+              background: '#f1f5f9',
+              color: '#0f172a',
+              width: '42px',
+              height: '42px',
+              borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(14, 165, 233, 0.4)',
+              cursor: 'pointer',
+              border: '1px solid #e2e8f0',
+              transition: 'all 0.15s ease',
             }}
+            title="View Shopping Cart"
           >
-            <Glasses size={22} color="#ffffff" strokeWidth={2.2} />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em' }}>
-                Vision<span style={{ color: 'var(--accent-cyan)' }}>Express</span>
+            <ShoppingBag size={20} />
+            {cartCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '-4px',
+                right: '-4px',
+                background: '#0284c7',
+                color: '#ffffff',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 6px rgba(2, 132, 199, 0.4)',
+              }}>
+                {cartCount}
               </span>
-              <span
+            )}
+          </button>
+
+          {/* User Profile / Login */}
+          {user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <button
+                onClick={() => handleNavClick('rewards')}
                 style={{
-                  fontSize: '0.625rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  background: 'rgba(14, 165, 233, 0.15)',
-                  color: 'var(--accent-cyan-light)',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(14, 165, 233, 0.25)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.45rem 0.85rem',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '9999px',
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                 }}
               >
-                PRO
-              </span>
+                <div style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #0ea5e9, #0369a1)',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                }}>
+                  {user.firstName[0]}
+                </div>
+                <div style={{ textAlign: 'left', display: 'none', md: 'block' }}>
+                  <div style={{ fontSize: '0.825rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>
+                    {user.firstName}
+                  </div>
+                  <div style={{ fontSize: '0.675rem', color: '#64748b' }}>
+                    {user.role}
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={logout}
+                style={{
+                  background: 'transparent',
+                  color: '#64748b',
+                  padding: '0.5rem',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+                title="Log Out"
+              >
+                <LogOut size={18} />
+              </button>
             </div>
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', margin: 0 }}>
-              Optical Practice Management
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Global Quick Search */}
-      <div style={{ flex: 1, maxWidth: '420px', margin: '0 2rem' }}>
-        <div style={{ position: 'relative' }}>
-          <Search
-            size={16}
-            style={{
-              position: 'absolute',
-              left: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--text-dim)',
-            }}
-          />
-          <input
-            id="global-search-input"
-            type="text"
-            className="form-control"
-            placeholder="Search appointments, couriers, staff, or eyewear..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              paddingLeft: '38px',
-              height: '38px',
-              borderRadius: '20px',
-              fontSize: '0.8125rem',
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Right Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        {/* Backend Connectivity Status Badge */}
-        <div
-          id="backend-status-badge"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 12px',
-            borderRadius: '20px',
-            background: backendOnline ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-            border: `1px solid ${backendOnline ? 'rgba(16, 185, 129, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
-            fontSize: '0.75rem',
-            fontWeight: 600,
-          }}
-          title={
-            backendOnline
-              ? 'Connected to Spring Boot REST API at localhost:8081'
-              : 'Spring Boot offline. Active Demo/Mock state enabled with persistent storage.'
-          }
-        >
-          <span
-            className={`pulse-indicator ${backendOnline ? 'pulse-green' : 'pulse-amber'}`}
-          />
-          <span style={{ color: backendOnline ? 'var(--color-success)' : 'var(--color-warning)' }}>
-            {backendOnline ? 'API Connected (8081)' : 'Demo / Offline Store'}
-          </span>
-          <button
-            id="ping-backend-btn"
-            onClick={pingBackend}
-            disabled={checkingBackend}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              display: 'flex',
-              padding: '2px',
-            }}
-            title="Refresh backend connection"
-          >
-            <RefreshCw
-              size={12}
-              style={{
-                animation: checkingBackend ? 'spin 1s linear infinite' : 'none',
+          ) : (
+            <button
+              onClick={() => {
+                setAuthModalMode('login');
+                setIsAuthModalOpen(true);
               }}
-            />
+              className="btn btn-primary btn-sm"
+              style={{ borderRadius: '9999px' }}
+            >
+              <User size={16} />
+              <span>Log In</span>
+            </button>
+          )}
+
+          {/* Mobile hamburger button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="mobile-toggle"
+            style={{
+              padding: '0.5rem',
+              color: '#0f172a',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-
-        {/* Quick Action: New Appointment */}
-        <button
-          id="nav-quick-book-btn"
-          className="btn btn-primary btn-sm"
-          onClick={() => setActiveTab('appointments')}
-        >
-          <PlusCircle size={15} />
-          <span>Book Service</span>
-        </button>
-
-        {/* Theme Toggle */}
-        <button
-          id="theme-toggle-btn"
-          onClick={toggleTheme}
-          className="btn btn-secondary btn-icon"
-          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} theme`}
-          aria-label="Toggle theme"
-        >
-          {theme === 'dark' ? (
-            <Sun size={17} color="#fbbf24" />
-          ) : (
-            <Moon size={17} color="#6366f1" />
-          )}
-        </button>
       </div>
 
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      {/* Mobile Menu Drawer */}
+      {isMobileMenuOpen && (
+        <div style={{
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e2e8f0',
+          padding: '1rem 1.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
+        }}>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '10px',
+                  fontSize: '0.925rem',
+                  fontWeight: isActive ? 700 : 500,
+                  color: isActive ? '#0284c7' : '#1e293b',
+                  backgroundColor: isActive ? '#f0f9ff' : 'transparent',
+                  textAlign: 'left',
+                }}
+              >
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </header>
   );
-};
+}

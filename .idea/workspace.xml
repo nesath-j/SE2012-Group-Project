@@ -5,28 +5,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b3e05e86-5f2a-476b-b93c-f964f37a38a9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/ManagerController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/repository/ManagerRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/ManagerService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/CourierController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/CourierController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/ServiceAppointmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/ServiceAppointmentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Courier.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Courier.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Employee.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Employee.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Manager.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Manager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/ServiceAppointment.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/ServiceAppointment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/repository/ServiceAppointmentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/repository/ServiceAppointmentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/ServiceAppointmentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/ServiceAppointmentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/demo/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/AuthModal.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/CartDrawer.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Footer.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Toast.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/context/AuthContext.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DoctorAppointments.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomeShop.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/MembershipRewards.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/MyOrders.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/OpticalServices.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/StaffPortal.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/api.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/mockData.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/vite.config.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="DatabaseLocalColorSettings">
-    <colors>
-      <entry key="3a9d8589-07ae-4018-8121-c88ef7655753" value="" />
-    </colors>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -45,6 +53,65 @@
         <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
       </MavenGeneralSettings>
     </option>
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="5.0601577357382377E-67" />
+      <entry key="MS500" value="5.505956944640651E-14" />
+      <entry key="S2" value="4.844045376622306E-4" />
+      <entry key="S5" value="0.047215357360958714" />
+      <entry key="S10" value="0.21729095094126383" />
+      <entry key="S30" value="0.6011929514849012" />
+      <entry key="S60" value="0.7753663337319343" />
+      <entry key="M2" value="0.8805488820797709" />
+      <entry key="M5" value="0.9503889714787365" />
+      <entry key="M10" value="0.9748789522185493" />
+      <entry key="M15" value="0.9831817217169846" />
+      <entry key="M30" value="0.9915552035650788" />
+      <entry key="H1" value="0.9957686496195182" />
+      <entry key="H2" value="0.9978820820214772" />
+      <entry key="H4" value="0.9989404797191258" />
+      <entry key="D1" value="0.9998233352788385" />
+      <entry key="W1" value="0.9999747602716399" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0" />
+      <entry key="S10" value="1.0" />
+      <entry key="S30" value="1.0" />
+      <entry key="S60" value="1.0" />
+      <entry key="M2" value="1.0" />
+      <entry key="M5" value="1.0" />
+      <entry key="M10" value="1.0" />
+      <entry key="M15" value="1.0" />
+      <entry key="M30" value="1.0" />
+      <entry key="H1" value="1.0" />
+      <entry key="H2" value="1.0" />
+      <entry key="H4" value="1.0" />
+      <entry key="D1" value="1.0" />
+      <entry key="W1" value="1.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="1.4977300462410246E-17" />
+      <entry key="MS500" value="4.3160523977850537E-4" />
+      <entry key="S2" value="0.144326426113068" />
+      <entry key="S5" value="0.4933143666504486" />
+      <entry key="S10" value="0.8591481241782503" />
+      <entry key="S30" value="1.4438217629123724" />
+      <entry key="S60" value="1.6891151400088051" />
+      <entry key="M2" value="1.835204831660321" />
+      <entry key="M5" value="1.9316701008602275" />
+      <entry key="M10" value="1.9654182447137047" />
+      <entry key="M15" value="1.976851740262536" />
+      <entry key="M30" value="1.9883787054951676" />
+      <entry key="H1" value="1.9941775075469983" />
+      <entry key="H2" value="1.99708578569025" />
+      <entry key="H4" value="1.9985421499746743" />
+      <entry key="D1" value="1.9997569217471318" />
+      <entry key="W1" value="1.9999652720058243" />
+    </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6,

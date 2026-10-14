@@ -1,83 +1,65 @@
 import React from 'react';
-import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
-export const Toast = () => {
-  const { toasts, removeToast } = useApp();
+export default function Toast() {
+  const { toasts, removeToast } = useAuth();
 
   if (!toasts.length) return null;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        bottom: '24px',
-        right: '24px',
-        zIndex: 9999,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        maxWidth: '380px',
-        pointerEvents: 'none'
-      }}
-    >
+    <div style={{
+      position: 'fixed',
+      bottom: '1.5rem',
+      right: '1.5rem',
+      zIndex: 9999,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.75rem',
+      maxWidth: '420px',
+      pointerEvents: 'none',
+    }}>
       {toasts.map(toast => {
         const isSuccess = toast.type === 'success';
         const isError = toast.type === 'error';
-
         return (
           <div
             key={toast.id}
-            id={`toast-${toast.id}`}
             style={{
               pointerEvents: 'auto',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-              padding: '14px 16px',
-              background: 'rgba(15, 23, 42, 0.95)',
-              border: `1px solid ${isSuccess ? 'rgba(16, 185, 129, 0.4)' : isError ? 'rgba(244, 63, 94, 0.4)' : 'rgba(56, 189, 248, 0.4)'}`,
+              background: '#ffffff',
+              border: `1.5px solid ${isSuccess ? '#10b981' : isError ? '#f43f5e' : '#0284c7'}`,
               borderRadius: '12px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(12px)',
-              color: '#ffffff',
-              animation: 'fadeIn 0.25s ease-out'
+              padding: '0.875rem 1.15rem',
+              boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              color: '#0f172a',
+              fontSize: '0.9rem',
+              fontWeight: 500,
+              animation: 'fadeIn 0.25s ease-out forwards',
             }}
           >
-            <div style={{ marginTop: '2px', flexShrink: 0 }}>
-              {isSuccess && <CheckCircle2 size={18} color="#10b981" />}
-              {isError && <AlertCircle size={18} color="#f43f5e" />}
-              {!isSuccess && !isError && <Info size={18} color="#38bdf8" />}
-            </div>
-
-            <div style={{ flex: 1, minWidth: 0 }}>
-              {toast.title && (
-                <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '2px' }}>
-                  {toast.title}
-                </div>
-              )}
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8', wordBreak: 'break-word' }}>
-                {toast.message}
-              </div>
-            </div>
-
+            {isSuccess && <CheckCircle2 size={20} color="#10b981" style={{ flexShrink: 0 }} />}
+            {isError && <AlertCircle size={20} color="#f43f5e" style={{ flexShrink: 0 }} />}
+            {!isSuccess && !isError && <Info size={20} color="#0284c7" style={{ flexShrink: 0 }} />}
+            <span style={{ flex: 1, lineHeight: 1.4 }}>{toast.message}</span>
             <button
               onClick={() => removeToast(toast.id)}
               style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#64748b',
-                cursor: 'pointer',
+                color: '#94a3b8',
+                display: 'inline-flex',
                 padding: '2px',
-                display: 'flex'
+                borderRadius: '4px',
+                cursor: 'pointer',
               }}
-              aria-label="Dismiss toast"
             >
-              <X size={15} />
+              <X size={16} />
             </button>
           </div>
         );
       })}
     </div>
   );
-};
+}
