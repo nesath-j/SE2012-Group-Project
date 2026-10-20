@@ -18,13 +18,13 @@ import {
 export default function MembershipRewards() {
   const { user, role, showToast, setIsAuthModalOpen, setAuthModalMode } = useAuth();
 
-  const [points, setPoints] = useState(650);
-  const [totalPoints, setTotalPoints] = useState(650);
-  const [tier, setTier] = useState('Silver');
-  const [discount, setDiscount] = useState(5.0);
+  const [points, setPoints] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [tier, setTier] = useState('Bronze');
+  const [discount, setDiscount] = useState(0.0);
   const [tiers, setTiers] = useState([]);
-  const [redeemInput, setRedeemInput] = useState(200);
-  const [redemptionValue, setRedemptionValue] = useState(10.0);
+  const [redeemInput, setRedeemInput] = useState(0);
+  const [redemptionValue, setRedemptionValue] = useState(0.0);
   const [prescriptionPath, setPrescriptionPath] = useState('');
   const [newPrescriptionFile, setNewPrescriptionFile] = useState('');
   const [loading, setLoading] = useState(true);
@@ -48,18 +48,16 @@ export default function MembershipRewards() {
         setPoints(pts);
         setTotalPoints(total);
         setTier(t || user.tier || 'Silver');
-        setDiscount(d || user.discountPercentage || 5.0);
-        setPrescriptionPath(user.prescriptionDocPath || '/uploads/prescriptions/rx_user_1.pdf');
+        setDiscount(d || user.discountPercentage || 0.0);
+        setPrescriptionPath(user.prescriptionDocPath || '');
+        handleCalculateRedemption(pts > 100 ? 100 : pts);
       } else {
-        // Fallback default sample stats
-        setPoints(user?.loyaltyPoints || 650);
-        setTotalPoints(user?.totalEarnedPoints || 650);
-        setTier(user?.tier || 'Silver');
-        setDiscount(user?.discountPercentage || 5.0);
-        setPrescriptionPath('/uploads/prescriptions/rx_sample.pdf');
+        setPoints(0);
+        setTotalPoints(0);
+        setTier('Bronze');
+        setDiscount(0.0);
+        setPrescriptionPath('');
       }
-
-      handleCalculateRedemption(200);
     } catch (err) {
       console.error(err);
     } finally {

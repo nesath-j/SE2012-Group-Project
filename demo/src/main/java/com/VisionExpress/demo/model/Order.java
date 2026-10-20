@@ -2,6 +2,7 @@ package com.VisionExpress.demo.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,7 +16,7 @@ public class Order {
     private Long orderId;
 
     @Column(name = "order_date")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "total_amount")
     private double totalAmount;
     @Column(name = "discount_amount")
@@ -65,8 +66,8 @@ public class Order {
     public Long getOrderId() {return orderId; }
     public void setOrderId(Long orderId) {this.orderId = orderId; }
 
-    public Date getOrderDate() {return orderDate; }
-    public void setOrderDate(Date orderDate) {this.orderDate = orderDate; }
+    public LocalDateTime getOrderDate() { return orderDate; }
+    public void setOrderDate(LocalDateTime orderDate) { this.orderDate = orderDate; }
 
     public double getTotalAmount() {return totalAmount; }
     public void setTotalAmount(double totalAmount) {this.totalAmount = totalAmount; }

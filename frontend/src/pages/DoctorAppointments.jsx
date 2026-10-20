@@ -12,11 +12,12 @@ import {
   Trash2,
   Star,
   ChevronRight,
-  Info
+  Info,
+  Stethoscope
 } from 'lucide-react';
 
-export default function DoctorAppointments() {
-  const { user, role, showToast, setIsAuthModalOpen, setAuthModalMode } = useAuth();
+export default function DoctorAppointments({ onNavigateTab }) {
+  const { user, role, isDoctor, isMember, showToast, setIsAuthModalOpen, setAuthModalMode } = useAuth();
 
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -93,9 +94,14 @@ export default function DoctorAppointments() {
     e.preventDefault();
 
     if (!user) {
-      showToast('Please log in to schedule a clinical consultation.', 'info');
+      showToast('Please sign in as a Customer Member to schedule an appointment.', 'info');
       setAuthModalMode('login');
       setIsAuthModalOpen(true);
+      return;
+    }
+
+    if (role !== 'MEMBER') {
+      showToast('Clinical appointment booking is for Customer Members. Staff accounts cannot schedule appointments for themselves.', 'error');
       return;
     }
 
@@ -143,6 +149,39 @@ export default function DoctorAppointments() {
 
   return (
     <div className="container animate-fade-in" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
+      {isDoctor && (
+        <div style={{
+          backgroundColor: '#eff6ff',
+          border: '1px solid #bfdbfe',
+          borderRadius: '16px',
+          padding: '1rem 1.5rem',
+          marginBottom: '2rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '1rem',
+          flexWrap: 'wrap',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Stethoscope size={24} color="#0284c7" />
+            <div>
+              <strong style={{ color: '#1e40af' }}>Practitioner Session Active:</strong>
+              <span style={{ color: '#1e3a8a', marginLeft: '0.5rem', fontSize: '0.9rem' }}>
+                You are signed in as Dr. {user.firstName} {user.lastName}. Review patient consultations, write consultation notes, or manage schedule slots in your Doctor Desk.
+              </span>
+            </div>
+          </div>
+          {onNavigateTab && (
+            <button
+              onClick={() => onNavigateTab('staff')}
+              className="btn btn-primary btn-sm"
+            >
+              Open Doctor Consultation Desk
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Header Banner */}
       <div style={{
         display: 'flex',

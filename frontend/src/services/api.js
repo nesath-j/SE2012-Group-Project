@@ -1,19 +1,15 @@
-// Vision Express Spring Boot 8081 Integration Service
-
-import {
-  INITIAL_PRODUCTS,
-  INITIAL_DOCTORS,
-  INITIAL_SCHEDULES,
-  INITIAL_DOCTOR_APPOINTMENTS,
-  INITIAL_EMPLOYEES,
-  INITIAL_SERVICE_APPOINTMENTS,
-  INITIAL_LOYALTY_TIERS,
-  INITIAL_COURIERS,
-  INITIAL_ORDERS,
-  DEMO_PRESET_USERS
-} from './mockData';
+// Vision Express Spring Boot 8081 Integration Service - Direct SQL Database Connectivity Only
 
 const BASE_URL = '/api';
+
+// Remove legacy mock data keys from browser localStorage
+if (typeof window !== 'undefined' && window.localStorage) {
+  ['products', 'doctors', 'schedules', 'doctor_appointments', 'service_appointments', 'orders', 'couriers'].forEach(key => {
+    try {
+      localStorage.removeItem(`ve_${key}`);
+    } catch {}
+  });
+}
 
 // Helper to retrieve CSRF token from Spring Security cookie or endpoint
 let cachedCsrfToken = null;
@@ -41,7 +37,7 @@ export async function fetchCsrfToken() {
       }
     }
   } catch (err) {
-    console.warn('Backend CSRF endpoint unreachable, proceeding with cookie/offline fallback:', err);
+    console.warn('Backend CSRF endpoint unreachable:', err);
   }
 
   // Check cookie immediately after endpoint response
@@ -52,10 +48,10 @@ export async function fetchCsrfToken() {
   return cachedCsrfToken;
 }
 
-// Universal fetch wrapper with credentials, CSRF, and graceful fallback
+// Universal fetch wrapper with credentials and CSRF
 async function request(endpoint, options = {}) {
   const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes((options.method || 'GET').toUpperCase());
-  
+
   let currentCsrf = getCsrfTokenFromCookie() || cachedCsrfToken;
   if (isMutating && !currentCsrf) {
     currentCsrf = await fetchCsrfToken();
@@ -81,7 +77,7 @@ async function request(endpoint, options = {}) {
 
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, fetchOptions);
-    
+
     // Check if response has content
     const contentType = response.headers.get('content-type');
     let data = null;
@@ -101,29 +97,10 @@ async function request(endpoint, options = {}) {
 
     return { success: true, data, status: response.status };
   } catch (err) {
-    // If it's a network error (e.g. backend offline), rethrow with isNetworkError
     if (!err.status) {
       err.isNetworkError = true;
     }
     throw err;
-  }
-}
-
-// Local mock state manager for seamless resilience
-function getLocal(key, initial) {
-  try {
-    const raw = localStorage.getItem(`ve_${key}`);
-    return raw ? JSON.parse(raw) : initial;
-  } catch {
-    return initial;
-  }
-}
-
-function setLocal(key, val) {
-  try {
-    localStorage.setItem(`ve_${key}`, JSON.stringify(val));
-  } catch (e) {
-    console.error(e);
   }
 }
 
@@ -135,11 +112,9 @@ export const authApi = {
 
   login: async (email, password) => {
     try {
-      // 1. Fetch fresh CSRF token so that any previous stale/rotated session state is fully synchronized
       const freshToken = await fetchCsrfToken();
       const activeToken = getCsrfTokenFromCookie() || freshToken;
 
-      // 2. Spring Security formLogin expects application/x-www-form-urlencoded
       const body = new URLSearchParams();
       body.append('email', email.trim());
       body.append('password', password);
@@ -156,34 +131,19 @@ export const authApi = {
         body: body.toString(),
       });
 
-      // 3. Immediately re-fetch CSRF token for the authenticated session
       await fetchCsrfToken();
 
-      // 4. Fetch user profile immediately after login
       const me = await authApi.me();
+      if (!me) {
+        throw new Error('Authentication succeeded but session could not be established.');
+      }
       return me;
     } catch (err) {
       if (err.isNetworkError) {
-        console.warn('Backend unavailable, falling back to preset demo account validation');
-        const match = DEMO_PRESET_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
-        if (match) {
-          setLocal('current_user', match);
-          return match;
-        }
-        // If unrecognized user, synthesize member for testing
-        const fallbackUser = {
-          userId: 101,
-          firstName: email.split('@')[0],
-          lastName: 'User',
-          email,
-          role: 'MEMBER',
-          loyaltyPoints: 100,
-          totalEarnedPoints: 100,
-          tier: 'Bronze',
-          discountPercentage: 0
-        };
-        setLocal('current_user', fallbackUser);
-        return fallbackUser;
+        throw new Error('Backend server is unreachable. Please verify that the Spring Boot application on port 8081 is running.');
+      }
+      if (err.status === 401) {
+        throw new Error('Invalid email or password.');
       }
       throw err;
     }
@@ -193,151 +153,120 @@ export const authApi = {
     try {
       await request('/auth/logout', { method: 'POST' });
     } catch (err) {
-      console.warn('Logout fallback:', err);
+      console.warn('Logout error:', err);
     } finally {
       localStorage.removeItem('ve_current_user');
+      localStorage.removeItem('ve_cart');
     }
   },
 
   me: async () => {
     try {
       const res = await request('/auth/me');
-      if (res.data) {
-        setLocal('current_user', res.data);
-        return res.data;
+      if (res.data && res.data.userId) {
+        let profile = { ...res.data };
+        if (profile.role === 'MEMBER') {
+          try {
+            const [ptsRes, tierRes, discRes] = await Promise.allSettled([
+              request(`/members/${profile.userId}/points`),
+              request(`/members/${profile.userId}/tier`),
+              request(`/members/${profile.userId}/discount`),
+            ]);
+            if (ptsRes.status === 'fulfilled' && ptsRes.value.data) {
+              profile.loyaltyPoints = ptsRes.value.data.loyaltyPoints ?? 0;
+            }
+            if (tierRes.status === 'fulfilled' && tierRes.value.data) {
+              profile.tier = tierRes.value.data.tier ?? 'Bronze';
+            }
+            if (discRes.status === 'fulfilled' && discRes.value.data) {
+              profile.discountPercentage = discRes.value.data.discountPercentage ?? 0;
+            }
+          } catch (e) {
+            console.warn('Could not load extra member details:', e);
+          }
+        }
+        localStorage.setItem('ve_current_user', JSON.stringify(profile));
+        return profile;
       }
-    } catch (err) {
-      if (err.isNetworkError) {
-        return getLocal('current_user', null);
-      }
-      throw err;
+      localStorage.removeItem('ve_current_user');
+      return null;
+    } catch {
+      localStorage.removeItem('ve_current_user');
+      return null;
     }
   },
 
   register: async ({ firstName, lastName, email, password, phone }) => {
-    try {
-      const res = await request('/users/register', {
-        method: 'POST',
-        body: JSON.stringify({ firstName, lastName, email: email.trim(), password, phone }),
-      });
-      // Re-synchronize fresh CSRF token right after registration
-      await fetchCsrfToken();
-      return res.data;
-    } catch (err) {
-      if (err.isNetworkError) {
-        const newUser = {
-          userId: Date.now(),
-          firstName,
-          lastName,
-          email,
-          phone,
-          role: 'MEMBER',
-          loyaltyPoints: 0,
-          totalEarnedPoints: 0,
-          tier: 'Bronze',
-          discountPercentage: 0
-        };
-        setLocal('current_user', newUser);
-        return 'Member registered successfully (offline mode).';
-      }
-      throw err;
-    }
+    const res = await request('/users/register', {
+      method: 'POST',
+      body: JSON.stringify({ firstName, lastName, email: email.trim(), password, phone }),
+    });
+    await fetchCsrfToken();
+    return res.data;
   },
 
   updateProfile: async (userId, { firstName, lastName, phone }) => {
-    try {
-      const res = await request(`/users/profile/${userId}`, {
-        method: 'PUT',
-        body: JSON.stringify({ firstName, lastName, phone }),
-      });
-      return res.data;
-    } catch (err) {
-      if (err.isNetworkError) {
-        const current = getLocal('current_user', {});
-        const updated = { ...current, firstName, lastName, phone };
-        setLocal('current_user', updated);
-        return 'Profile updated successfully.';
-      }
-      throw err;
-    }
+    const res = await request(`/users/profile/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ firstName, lastName, phone }),
+    });
+    return res.data;
   }
 };
 
 // -------------------------------------------------------------
-// Products Endpoints
+// Products Endpoints (Direct SQL database connectivity)
 // -------------------------------------------------------------
 export const productsApi = {
   search: async (keyword = '') => {
     try {
-      // UserController public search: /api/users/products/search?keyword=...
       const res = await request(`/users/products/search?keyword=${encodeURIComponent(keyword)}`);
-      if (Array.isArray(res.data) && res.data.length > 0) {
+      if (Array.isArray(res.data)) {
         return res.data;
       }
-      // If user passed empty string or backend returned empty, fallback to catalog
-      const local = getLocal('products', INITIAL_PRODUCTS);
-      if (!keyword.trim()) return local;
-      return local.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()) || p.category.toLowerCase().includes(keyword.toLowerCase()));
+      return [];
     } catch (err) {
-      const local = getLocal('products', INITIAL_PRODUCTS);
-      if (!keyword.trim()) return local;
-      return local.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()) || p.category.toLowerCase().includes(keyword.toLowerCase()));
+      console.error('Error fetching products from SQL database:', err);
+      return [];
+    }
+  },
+
+  getAll: async () => {
+    try {
+      const res = await request('/products');
+      if (Array.isArray(res.data)) return res.data;
+      return [];
+    } catch (err) {
+      const fallback = await request('/users/products/search?keyword=');
+      if (Array.isArray(fallback?.data)) return fallback.data;
+      return [];
     }
   },
 
   add: async (product) => {
-    try {
-      const res = await request('/products/add', {
-        method: 'POST',
-        body: JSON.stringify(product),
-      });
-      return res.data;
-    } catch (err) {
-      const local = getLocal('products', INITIAL_PRODUCTS);
-      const newProduct = { ...product, productId: Date.now() };
-      const updated = [newProduct, ...local];
-      setLocal('products', updated);
-      return newProduct;
-    }
+    const res = await request('/products/add', {
+      method: 'POST',
+      body: JSON.stringify(product),
+    });
+    return res.data;
   },
 
   update: async (id, product) => {
-    try {
-      const res = await request(`/products/update/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(product),
-      });
-      return res.data;
-    } catch (err) {
-      const local = getLocal('products', INITIAL_PRODUCTS);
-      const updated = local.map(p => p.productId === Number(id) ? { ...p, ...product } : p);
-      setLocal('products', updated);
-      return { ...product, productId: Number(id) };
-    }
+    const res = await request(`/products/update/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(product),
+    });
+    return res.data;
   },
 
   delete: async (id) => {
-    try {
-      await request(`/products/delete/${id}`, { method: 'DELETE' });
-      return true;
-    } catch (err) {
-      const local = getLocal('products', INITIAL_PRODUCTS);
-      const updated = local.filter(p => p.productId !== Number(id));
-      setLocal('products', updated);
-      return true;
-    }
+    await request(`/products/delete/${id}`, { method: 'DELETE' });
+    return true;
   },
 
   updateStock: async (id, qty) => {
-    try {
-      await request(`/products/${id}/stock?qty=${qty}`, { method: 'PATCH' });
-      return true;
-    } catch (err) {
-      const local = getLocal('products', INITIAL_PRODUCTS);
-      const updated = local.map(p => p.productId === Number(id) ? { ...p, stockQuantity: qty } : p);
-      setLocal('products', updated);
-      return true;
-    }
+    await request(`/products/${id}/stock?qty=${qty}`, { method: 'PATCH' });
+    return true;
   }
 };
 
@@ -348,22 +277,22 @@ export const doctorsApi = {
   getAll: async () => {
     try {
       const res = await request('/users/doctors');
-      if (Array.isArray(res.data) && res.data.length > 0) return res.data;
-      return getLocal('doctors', INITIAL_DOCTORS);
-    } catch {
-      return getLocal('doctors', INITIAL_DOCTORS);
+      if (Array.isArray(res.data)) return res.data;
+      return [];
+    } catch (err) {
+      console.error('Error fetching doctors from SQL database:', err);
+      return [];
     }
   },
 
   getSchedules: async (doctorId) => {
     try {
       const res = await request(`/doctor-schedules/doctor/${doctorId}/available`);
-      if (Array.isArray(res.data) && res.data.length > 0) return res.data;
-      const allSchedules = getLocal('schedules', INITIAL_SCHEDULES);
-      return allSchedules.filter(s => s.doctorId === Number(doctorId) && !s.isBooked);
-    } catch {
-      const allSchedules = getLocal('schedules', INITIAL_SCHEDULES);
-      return allSchedules.filter(s => s.doctorId === Number(doctorId) && !s.isBooked);
+      if (Array.isArray(res.data)) return res.data;
+      return [];
+    } catch (err) {
+      console.error('Error fetching doctor schedules from SQL database:', err);
+      return [];
     }
   },
 
@@ -371,64 +300,37 @@ export const doctorsApi = {
     try {
       const res = await request('/doctor-schedules');
       if (Array.isArray(res.data)) return res.data;
-      return getLocal('schedules', INITIAL_SCHEDULES);
-    } catch {
-      return getLocal('schedules', INITIAL_SCHEDULES);
+      return [];
+    } catch (err) {
+      console.error('Error fetching all schedules from SQL database:', err);
+      return [];
     }
   },
 
   createSchedule: async (schedule) => {
-    try {
-      const res = await request('/doctor-schedules', {
-        method: 'POST',
-        body: JSON.stringify(schedule),
-      });
-      return res.data;
-    } catch {
-      const allSchedules = getLocal('schedules', INITIAL_SCHEDULES);
-      const newSlot = { ...schedule, scheduleId: Date.now(), isBooked: false };
-      setLocal('schedules', [...allSchedules, newSlot]);
-      return newSlot;
-    }
+    const res = await request('/doctor-schedules', {
+      method: 'POST',
+      body: JSON.stringify(schedule),
+    });
+    return res.data;
   },
 
   bookAppointment: async ({ memberId, doctorId, scheduleId, appointmentDate }) => {
-    try {
-      const res = await request('/doctor-appointments', {
-        method: 'POST',
-        body: JSON.stringify({ memberId, doctorId, scheduleId, appointmentDate }),
-      });
-      return res.data;
-    } catch (err) {
-      if (err.isNetworkError) {
-        const appointments = getLocal('doctor_appointments', INITIAL_DOCTOR_APPOINTMENTS);
-        const newApp = {
-          doctorAppointmentId: Date.now(),
-          memberId,
-          doctorId,
-          scheduleId,
-          appointmentDate,
-          status: 'SCHEDULED',
-          consultationNotes: ''
-        };
-        setLocal('doctor_appointments', [...appointments, newApp]);
-
-        // Mark schedule slot as booked
-        const allSchedules = getLocal('schedules', INITIAL_SCHEDULES);
-        setLocal('schedules', allSchedules.map(s => s.scheduleId === scheduleId ? { ...s, isBooked: true } : s));
-        return newApp;
-      }
-      throw err;
-    }
+    const res = await request('/doctor-appointments', {
+      method: 'POST',
+      body: JSON.stringify({ memberId, doctorId, scheduleId, appointmentDate }),
+    });
+    return res.data;
   },
 
   getAppointmentsByDoctor: async (doctorId) => {
     try {
       const res = await request(`/doctor-appointments/doctor/${doctorId}`);
       if (Array.isArray(res.data)) return res.data;
-      return getLocal('doctor_appointments', INITIAL_DOCTOR_APPOINTMENTS).filter(a => a.doctorId === Number(doctorId));
-    } catch {
-      return getLocal('doctor_appointments', INITIAL_DOCTOR_APPOINTMENTS).filter(a => a.doctorId === Number(doctorId));
+      return [];
+    } catch (err) {
+      console.error('Error fetching doctor appointments from SQL database:', err);
+      return [];
     }
   },
 
@@ -436,51 +338,32 @@ export const doctorsApi = {
     try {
       const res = await request(`/doctor-appointments/member/${memberId}`);
       if (Array.isArray(res.data)) return res.data;
-      return getLocal('doctor_appointments', INITIAL_DOCTOR_APPOINTMENTS).filter(a => a.memberId === Number(memberId));
-    } catch {
-      return getLocal('doctor_appointments', INITIAL_DOCTOR_APPOINTMENTS).filter(a => a.memberId === Number(memberId));
+      return [];
+    } catch (err) {
+      console.error('Error fetching member appointments from SQL database:', err);
+      return [];
     }
   },
 
   updateNotes: async (id, notes) => {
-    try {
-      const res = await request(`/doctor-appointments/${id}/notes`, {
-        method: 'PUT',
-        body: JSON.stringify({ notes }),
-      });
-      return res.data;
-    } catch {
-      const appointments = getLocal('doctor_appointments', INITIAL_DOCTOR_APPOINTMENTS);
-      const updated = appointments.map(a => a.doctorAppointmentId === Number(id) ? { ...a, consultationNotes: notes } : a);
-      setLocal('doctor_appointments', updated);
-      return { doctorAppointmentId: id, consultationNotes: notes };
-    }
+    const res = await request(`/doctor-appointments/${id}/notes`, {
+      method: 'PUT',
+      body: JSON.stringify({ notes }),
+    });
+    return res.data;
   },
 
   updateStatus: async (id, status) => {
-    try {
-      const res = await request(`/doctor-appointments/${id}/status`, {
-        method: 'PUT',
-        body: JSON.stringify({ status }),
-      });
-      return res.data;
-    } catch {
-      const appointments = getLocal('doctor_appointments', INITIAL_DOCTOR_APPOINTMENTS);
-      const updated = appointments.map(a => a.doctorAppointmentId === Number(id) ? { ...a, status } : a);
-      setLocal('doctor_appointments', updated);
-      return { doctorAppointmentId: id, status };
-    }
+    const res = await request(`/doctor-appointments/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+    return res.data;
   },
 
   cancelAppointment: async (id) => {
-    try {
-      await request(`/doctor-appointments/${id}`, { method: 'DELETE' });
-      return true;
-    } catch {
-      const appointments = getLocal('doctor_appointments', INITIAL_DOCTOR_APPOINTMENTS);
-      setLocal('doctor_appointments', appointments.map(a => a.doctorAppointmentId === Number(id) ? { ...a, status: 'CANCELLED' } : a));
-      return true;
-    }
+    await request(`/doctor-appointments/${id}`, { method: 'DELETE' });
+    return true;
   }
 };
 
@@ -491,10 +374,11 @@ export const serviceAppointmentsApi = {
   getAvailableServices: async () => {
     try {
       const res = await request('/users/services');
-      if (Array.isArray(res.data) && res.data.length > 0) return res.data;
-      return ['Frame Adjustment', 'Lens Fitting', 'Repair'];
-    } catch {
-      return ['Frame Adjustment', 'Lens Fitting', 'Repair'];
+      if (Array.isArray(res.data)) return res.data;
+      return [];
+    } catch (err) {
+      console.error('Error fetching optical services from SQL database:', err);
+      return [];
     }
   },
 
@@ -502,9 +386,10 @@ export const serviceAppointmentsApi = {
     try {
       const res = await request('/service-appointments');
       if (Array.isArray(res.data)) return res.data;
-      return getLocal('service_appointments', INITIAL_SERVICE_APPOINTMENTS);
-    } catch {
-      return getLocal('service_appointments', INITIAL_SERVICE_APPOINTMENTS);
+      return [];
+    } catch (err) {
+      console.error('Error fetching service appointments from SQL database:', err);
+      return [];
     }
   },
 
@@ -512,71 +397,34 @@ export const serviceAppointmentsApi = {
     try {
       const res = await request(`/service-appointments/member/${memberId}`);
       if (Array.isArray(res.data)) return res.data;
-      return getLocal('service_appointments', INITIAL_SERVICE_APPOINTMENTS).filter(s => s.memberId === Number(memberId));
-    } catch {
-      return getLocal('service_appointments', INITIAL_SERVICE_APPOINTMENTS).filter(s => s.memberId === Number(memberId));
+      return [];
+    } catch (err) {
+      console.error('Error fetching member service appointments from SQL database:', err);
+      return [];
     }
   },
 
   book: async ({ memberId, employeeId, serviceType, appointmentDate }) => {
-    try {
-      const res = await request('/service-appointments/add', {
-        method: 'POST',
-        body: JSON.stringify({ memberId, employeeId, serviceType, appointmentDate }),
-      });
-      return res.data;
-    } catch (err) {
-      if (err.isNetworkError) {
-        const list = getLocal('service_appointments', INITIAL_SERVICE_APPOINTMENTS);
-        const newApp = {
-          serviceAppointmentId: Date.now(),
-          memberId,
-          employeeId: employeeId || 6,
-          serviceType,
-          appointmentDate,
-          serviceStatus: 'Scheduled'
-        };
-        setLocal('service_appointments', [...list, newApp]);
-        return newApp;
-      }
-      throw err;
-    }
+    const res = await request('/service-appointments/add', {
+      method: 'POST',
+      body: JSON.stringify({ memberId, employeeId, serviceType, appointmentDate }),
+    });
+    return res.data;
   },
 
   complete: async (id) => {
-    try {
-      const res = await request(`/service-appointments/${id}/complete`, { method: 'PATCH' });
-      return res.data;
-    } catch {
-      const list = getLocal('service_appointments', INITIAL_SERVICE_APPOINTMENTS);
-      const updated = list.map(s => s.serviceAppointmentId === Number(id) ? { ...s, serviceStatus: 'Completed' } : s);
-      setLocal('service_appointments', updated);
-      return { serviceAppointmentId: id, serviceStatus: 'Completed' };
-    }
+    const res = await request(`/service-appointments/${id}/complete`, { method: 'PATCH' });
+    return res.data;
   },
 
   cancel: async (id) => {
-    try {
-      const res = await request(`/service-appointments/${id}/cancel`, { method: 'PUT' });
-      return res.data;
-    } catch {
-      const list = getLocal('service_appointments', INITIAL_SERVICE_APPOINTMENTS);
-      const updated = list.map(s => s.serviceAppointmentId === Number(id) ? { ...s, serviceStatus: 'Cancelled' } : s);
-      setLocal('service_appointments', updated);
-      return { serviceAppointmentId: id, serviceStatus: 'Cancelled' };
-    }
+    const res = await request(`/service-appointments/${id}/cancel`, { method: 'PUT' });
+    return res.data;
   },
 
   updateStatus: async (id, status) => {
-    try {
-      const res = await request(`/service-appointments/${id}/status?status=${encodeURIComponent(status)}`, { method: 'PATCH' });
-      return res.data;
-    } catch {
-      const list = getLocal('service_appointments', INITIAL_SERVICE_APPOINTMENTS);
-      const updated = list.map(s => s.serviceAppointmentId === Number(id) ? { ...s, serviceStatus: status } : s);
-      setLocal('service_appointments', updated);
-      return { serviceAppointmentId: id, serviceStatus: status };
-    }
+    const res = await request(`/service-appointments/${id}/status?status=${encodeURIComponent(status)}`, { method: 'PATCH' });
+    return res.data;
   }
 };
 
@@ -585,47 +433,21 @@ export const serviceAppointmentsApi = {
 // -------------------------------------------------------------
 export const ordersApi = {
   create: async ({ orderItems, prescriptionAttached }) => {
-    try {
-      const res = await request('/orders', {
-        method: 'POST',
-        body: JSON.stringify({ orderItems, prescriptionAttached }),
-      });
-      return res.data;
-    } catch (err) {
-      if (err.isNetworkError) {
-        const myOrders = getLocal('orders', INITIAL_ORDERS);
-        const total = orderItems.reduce((acc, it) => acc + (it.product?.price || 100) * it.quantity, 0);
-        const newOrder = {
-          orderId: Date.now(),
-          orderDate: new Date().toISOString(),
-          totalAmount: total,
-          discountAmount: 0.0,
-          orderStatus: 'Processing',
-          paymentStatus: 'PENDING',
-          paymentSlip: null,
-          prescriptionAttached: Boolean(prescriptionAttached),
-          loyaltyPointsAwarded: false,
-          orderItems: orderItems.map((it, idx) => ({
-            orderItemId: Date.now() + idx,
-            quantity: it.quantity,
-            unitPrice: it.product?.price || 100,
-            product: it.product
-          }))
-        };
-        setLocal('orders', [newOrder, ...myOrders]);
-        return newOrder;
-      }
-      throw err;
-    }
+    const res = await request('/orders', {
+      method: 'POST',
+      body: JSON.stringify({ orderItems, prescriptionAttached }),
+    });
+    return res.data;
   },
 
   getMyOrders: async () => {
     try {
       const res = await request('/orders/my-orders');
       if (Array.isArray(res.data)) return res.data;
-      return getLocal('orders', INITIAL_ORDERS);
-    } catch {
-      return getLocal('orders', INITIAL_ORDERS);
+      return [];
+    } catch (err) {
+      console.error('Error fetching my orders from SQL database:', err);
+      return [];
     }
   },
 
@@ -633,71 +455,36 @@ export const ordersApi = {
     try {
       const res = await request('/orders');
       if (Array.isArray(res.data)) return res.data;
-      return getLocal('orders', INITIAL_ORDERS);
-    } catch {
-      return getLocal('orders', INITIAL_ORDERS);
+      return [];
+    } catch (err) {
+      console.error('Error fetching all orders from SQL database:', err);
+      return [];
     }
   },
 
   getById: async (id) => {
-    try {
-      const res = await request(`/orders/${id}`);
-      return res.data;
-    } catch {
-      const list = getLocal('orders', INITIAL_ORDERS);
-      return list.find(o => o.orderId === Number(id));
-    }
+    const res = await request(`/orders/${id}`);
+    return res.data;
   },
 
   uploadPaymentSlip: async (orderId, file) => {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await request(`/orders/${orderId}/payment-slip`, {
-        method: 'POST',
-        body: formData,
-      });
-      return res.data;
-    } catch (err) {
-      if (err.isNetworkError) {
-        const list = getLocal('orders', INITIAL_ORDERS);
-        const updated = list.map(o => o.orderId === Number(orderId) ? {
-          ...o,
-          paymentSlip: URL.createObjectURL(file),
-          paymentStatus: 'TO_BE_CONFIRMED'
-        } : o);
-        setLocal('orders', updated);
-        return `Payment slip uploaded successfully for order ${orderId}`;
-      }
-      throw err;
-    }
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await request(`/orders/${orderId}/payment-slip`, {
+      method: 'POST',
+      body: formData,
+    });
+    return res.data;
   },
 
   confirmPayment: async (orderId) => {
-    try {
-      const res = await request(`/orders/${orderId}/confirm-payment`, { method: 'PATCH' });
-      return res.data;
-    } catch (err) {
-      const list = getLocal('orders', INITIAL_ORDERS);
-      const updated = list.map(o => o.orderId === Number(orderId) ? {
-        ...o,
-        paymentStatus: 'CONFIRMED',
-        loyaltyPointsAwarded: true
-      } : o);
-      setLocal('orders', updated);
-      return 'Payment confirmed and loyalty points processed successfully.';
-    }
+    const res = await request(`/orders/${orderId}/confirm-payment`, { method: 'PATCH' });
+    return res.data;
   },
 
   updateStatus: async (orderId, status) => {
-    try {
-      await request(`/orders/${orderId}/status?status=${encodeURIComponent(status)}`, { method: 'PATCH' });
-      return true;
-    } catch {
-      const list = getLocal('orders', INITIAL_ORDERS);
-      setLocal('orders', list.map(o => o.orderId === Number(orderId) ? { ...o, orderStatus: status } : o));
-      return true;
-    }
+    await request(`/orders/${orderId}/status?status=${encodeURIComponent(status)}`, { method: 'PATCH' });
+    return true;
   }
 };
 
@@ -708,65 +495,50 @@ export const memberApi = {
   getPoints: async (memberId) => {
     try {
       const res = await request(`/members/${memberId}/points`);
-      return res.data.loyaltyPoints;
+      return res.data?.loyaltyPoints ?? 0;
     } catch {
-      const user = getLocal('current_user', DEMO_PRESET_USERS[0]);
-      return user.loyaltyPoints || 650;
+      return 0;
     }
   },
 
   getTotalPoints: async (memberId) => {
     try {
       const res = await request(`/members/${memberId}/total-points`);
-      return res.data.totalEarnedPoints;
+      return res.data?.totalEarnedPoints ?? 0;
     } catch {
-      const user = getLocal('current_user', DEMO_PRESET_USERS[0]);
-      return user.totalEarnedPoints || 650;
+      return 0;
     }
   },
 
   getTier: async (memberId) => {
     try {
       const res = await request(`/members/${memberId}/tier`);
-      return res.data.tier;
+      return res.data?.tier ?? 'Bronze';
     } catch {
-      const user = getLocal('current_user', DEMO_PRESET_USERS[0]);
-      return user.tier || 'Silver';
+      return 'Bronze';
     }
   },
 
   getDiscount: async (memberId) => {
     try {
       const res = await request(`/members/${memberId}/discount`);
-      return res.data.discountPercentage;
+      return res.data?.discountPercentage ?? 0.0;
     } catch {
-      const user = getLocal('current_user', DEMO_PRESET_USERS[0]);
-      return user.discountPercentage || 5.0;
+      return 0.0;
     }
   },
 
   redeem: async (memberId, points) => {
-    try {
-      const res = await request(`/members/${memberId}/redeem?points=${points}`);
-      return res.data.redemptionValue;
-    } catch {
-      // Standard demo formula: 100 points = $5.00
-      return Number((points * 0.05).toFixed(2));
-    }
+    const res = await request(`/members/${memberId}/redeem?points=${points}`);
+    return res.data?.redemptionValue ?? 0;
   },
 
   uploadPrescription: async (memberId, filePath) => {
-    try {
-      const res = await request(`/members/${memberId}/prescription`, {
-        method: 'PUT',
-        body: JSON.stringify({ filePath }),
-      });
-      return res.data;
-    } catch {
-      const user = getLocal('current_user', {});
-      setLocal('current_user', { ...user, prescriptionDocPath: filePath });
-      return { message: 'Prescription reference updated.' };
-    }
+    const res = await request(`/members/${memberId}/prescription`, {
+      method: 'PUT',
+      body: JSON.stringify({ filePath }),
+    });
+    return res.data;
   }
 };
 
@@ -777,23 +549,17 @@ export const loyaltyTiersApi = {
   getAll: async () => {
     try {
       const res = await request('/loyalty-tiers');
-      if (Array.isArray(res.data) && res.data.length > 0) return res.data;
-      return INITIAL_LOYALTY_TIERS;
-    } catch {
-      return INITIAL_LOYALTY_TIERS;
+      if (Array.isArray(res.data)) return res.data;
+      return [];
+    } catch (err) {
+      console.error('Error fetching loyalty tiers from SQL database:', err);
+      return [];
     }
   },
 
   calculate: async (points) => {
-    try {
-      const res = await request(`/loyalty-tiers/calculate?points=${points}`);
-      return res.data;
-    } catch {
-      if (points >= 3000) return INITIAL_LOYALTY_TIERS[3];
-      if (points >= 1500) return INITIAL_LOYALTY_TIERS[2];
-      if (points >= 500) return INITIAL_LOYALTY_TIERS[1];
-      return INITIAL_LOYALTY_TIERS[0];
-    }
+    const res = await request(`/loyalty-tiers/calculate?points=${points}`);
+    return res.data;
   }
 };
 
@@ -805,9 +571,10 @@ export const staffApi = {
     try {
       const res = await request('/employees');
       if (Array.isArray(res.data)) return res.data;
-      return INITIAL_EMPLOYEES;
-    } catch {
-      return INITIAL_EMPLOYEES;
+      return [];
+    } catch (err) {
+      console.error('Error fetching employees from SQL database:', err);
+      return [];
     }
   },
 
@@ -815,70 +582,33 @@ export const staffApi = {
     try {
       const res = await request('/couriers');
       if (Array.isArray(res.data)) return res.data;
-      return getLocal('couriers', INITIAL_COURIERS);
-    } catch {
-      return getLocal('couriers', INITIAL_COURIERS);
+      return [];
+    } catch (err) {
+      console.error('Error fetching couriers from SQL database:', err);
+      return [];
     }
   },
 
   addCourier: async (courier) => {
-    try {
-      const res = await request('/couriers', {
-        method: 'POST',
-        body: JSON.stringify(courier),
-      });
-      return res.data;
-    } catch {
-      const couriers = getLocal('couriers', INITIAL_COURIERS);
-      const newCourier = { ...courier, courierId: Date.now() };
-      setLocal('couriers', [...couriers, newCourier]);
-      return newCourier;
-    }
+    const res = await request('/couriers', {
+      method: 'POST',
+      body: JSON.stringify(courier),
+    });
+    return res.data;
   },
 
   dispatchDelivery: async (orderId, courierId) => {
-    try {
-      const res = await request(`/deliveries/dispatch?orderId=${orderId}&courierId=${courierId}`, { method: 'POST' });
-      return res.data;
-    } catch {
-      const trackingNumber = `VX-${Math.floor(100000000 + Math.random() * 900000000)}`;
-      const list = getLocal('orders', INITIAL_ORDERS);
-      const updated = list.map(o => o.orderId === Number(orderId) ? {
-        ...o,
-        orderStatus: 'Shipped',
-        delivery: {
-          trackingNumber,
-          deliveryStatus: 'Dispatched',
-          courierId,
-          dispatchDate: new Date().toISOString().split('T')[0],
-          estimatedDeliveryDate: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0]
-        }
-      } : o);
-      setLocal('orders', updated);
-      return { orderId, trackingNumber, deliveryStatus: 'Dispatched' };
-    }
+    const res = await request(`/deliveries/dispatch?orderId=${orderId}&courierId=${courierId}`, { method: 'POST' });
+    return res.data;
   },
 
   trackDelivery: async (orderId) => {
-    try {
-      const res = await request(`/deliveries/track/${orderId}`);
-      return res.data;
-    } catch {
-      const list = getLocal('orders', INITIAL_ORDERS);
-      const match = list.find(o => o.orderId === Number(orderId));
-      if (match && match.delivery) {
-        return `Tracking #${match.delivery.trackingNumber} - Status: ${match.delivery.deliveryStatus}`;
-      }
-      return 'Order packaging in optical facility.';
-    }
+    const res = await request(`/deliveries/track/${orderId}`);
+    return res.data;
   },
 
   updateDeliveryStatus: async (trackingNumber, status) => {
-    try {
-      await request(`/deliveries/status?trackingNumber=${encodeURIComponent(trackingNumber)}&status=${encodeURIComponent(status)}`, { method: 'PATCH' });
-      return true;
-    } catch {
-      return true;
-    }
+    await request(`/deliveries/status?trackingNumber=${encodeURIComponent(trackingNumber)}&status=${encodeURIComponent(status)}`, { method: 'PATCH' });
+    return true;
   }
 };

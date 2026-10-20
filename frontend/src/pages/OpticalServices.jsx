@@ -15,13 +15,13 @@ import {
   Layers
 } from 'lucide-react';
 
-export default function OpticalServices() {
-  const { user, showToast, setIsAuthModalOpen, setAuthModalMode } = useAuth();
+export default function OpticalServices({ onNavigateTab }) {
+  const { user, role, isEmployee, isManager, isAdmin, showToast, setIsAuthModalOpen, setAuthModalMode } = useAuth();
 
   const [services, setServices] = useState(['Frame Adjustment', 'Lens Fitting', 'Repair']);
   const [selectedService, setSelectedService] = useState('Frame Adjustment');
   const [technicians, setTechnicians] = useState([]);
-  const [selectedTechnicianId, setSelectedTechnicianId] = useState(6);
+  const [selectedTechnicianId, setSelectedTechnicianId] = useState('');
   const [appointmentDate, setAppointmentDate] = useState('');
   const [appointmentTime, setAppointmentTime] = useState('10:30');
   const [memberAppointments, setMemberAppointments] = useState([]);
@@ -71,9 +71,14 @@ export default function OpticalServices() {
     e.preventDefault();
 
     if (!user) {
-      showToast('Please log in to schedule an optical service appointment.', 'info');
+      showToast('Please sign in as a Customer Member to schedule an optical service.', 'info');
       setAuthModalMode('login');
       setIsAuthModalOpen(true);
+      return;
+    }
+
+    if (role !== 'MEMBER') {
+      showToast('Optical service appointments can only be booked by Customer Members. Staff can manage service orders in the Staff Workspace.', 'error');
       return;
     }
 
@@ -124,7 +129,7 @@ export default function OpticalServices() {
       title: 'Precision Frame Adjustment & Ergonomics',
       desc: 'Expert temple tensioning, nose pad replacement, bridge realignment, and pantoscopic tilt correction for maximum comfort.',
       duration: '20 Mins',
-      price: 'Free for Members ($15 non-members)',
+      price: 'Free for Members (Rs 200 non-members)',
       icon: Sliders
     },
     'Lens Fitting': {
@@ -138,13 +143,46 @@ export default function OpticalServices() {
       title: 'Ultrasonic Optical Restoration & Repair',
       desc: 'Hinge micro-soldering, stripped screw extraction, ultrasonic sonic bath cleaning, and full acetate frame buffing and shine polish.',
       duration: '30 Mins',
-      price: 'Free for Gold/Platinum Members ($25 standard)',
+      price: 'Free for Gold/Platinum Members (Rs 500 standard)',
       icon: Wrench
     }
   };
 
   return (
     <div className="container animate-fade-in" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
+      {(isEmployee || isManager || isAdmin) && (
+        <div style={{
+          backgroundColor: '#eff6ff',
+          border: '1px solid #bfdbfe',
+          borderRadius: '16px',
+          padding: '1rem 1.5rem',
+          marginBottom: '2rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '1rem',
+          flexWrap: 'wrap',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Wrench size={24} color="#0284c7" />
+            <div>
+              <strong style={{ color: '#1e40af' }}>Staff Operations Notice:</strong>
+              <span style={{ color: '#1e3a8a', marginLeft: '0.5rem', fontSize: '0.9rem' }}>
+                You are signed in as {user.firstName} {user.lastName} ({role}). To fulfill service requests and complete technician work orders, use your internal Technician & Dispatch Desk.
+              </span>
+            </div>
+          </div>
+          {onNavigateTab && (
+            <button
+              onClick={() => onNavigateTab('staff')}
+              className="btn btn-primary btn-sm"
+            >
+              Open Technician Desk
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Top Header */}
       <div style={{
         display: 'flex',
