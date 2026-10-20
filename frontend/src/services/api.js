@@ -9,8 +9,7 @@ import {
   INITIAL_SERVICE_APPOINTMENTS,
   INITIAL_LOYALTY_TIERS,
   INITIAL_COURIERS,
-  INITIAL_ORDERS,
-  DEMO_PRESET_USERS
+  INITIAL_ORDERS
 } from './mockData';
 
 const BASE_URL = '/api';
@@ -55,7 +54,7 @@ export async function fetchCsrfToken() {
 // Universal fetch wrapper with credentials, CSRF, and graceful fallback
 async function request(endpoint, options = {}) {
   const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes((options.method || 'GET').toUpperCase());
-  
+
   let currentCsrf = getCsrfTokenFromCookie() || cachedCsrfToken;
   if (isMutating && !currentCsrf) {
     currentCsrf = await fetchCsrfToken();
@@ -81,7 +80,7 @@ async function request(endpoint, options = {}) {
 
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, fetchOptions);
-    
+
     // Check if response has content
     const contentType = response.headers.get('content-type');
     let data = null;
@@ -135,7 +134,7 @@ export const authApi = {
 
   login: async (email, password) => {
     try {
-      // 1. Fetch fresh CSRF token so that any previous stale/rotated session state is fully synchronized
+      // 1. Fetch fresh CSRF token
       const freshToken = await fetchCsrfToken();
       const activeToken = getCsrfTokenFromCookie() || freshToken;
 
@@ -159,31 +158,18 @@ export const authApi = {
       // 3. Immediately re-fetch CSRF token for the authenticated session
       await fetchCsrfToken();
 
-      // 4. Fetch user profile immediately after login
+      // 4. Fetch user profile from Spring Security session
       const me = await authApi.me();
+      if (!me) {
+        throw new Error('Authentication succeeded but session could not be established.');
+      }
       return me;
     } catch (err) {
       if (err.isNetworkError) {
-        console.warn('Backend unavailable, falling back to preset demo account validation');
-        const match = DEMO_PRESET_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
-        if (match) {
-          setLocal('current_user', match);
-          return match;
-        }
-        // If unrecognized user, synthesize member for testing
-        const fallbackUser = {
-          userId: 101,
-          firstName: email.split('@')[0],
-          lastName: 'User',
-          email,
-          role: 'MEMBER',
-          loyaltyPoints: 100,
-          totalEarnedPoints: 100,
-          tier: 'Bronze',
-          discountPercentage: 0
-        };
-        setLocal('current_user', fallbackUser);
-        return fallbackUser;
+        throw new Error('Backend server is unreachable. Please verify that the Spring Boot application on port 8081 is running.');
+      }
+      if (err.status === 401) {
+        throw new Error('Invalid email or password.');
       }
       throw err;
     }
@@ -193,24 +179,54 @@ export const authApi = {
     try {
       await request('/auth/logout', { method: 'POST' });
     } catch (err) {
-      console.warn('Logout fallback:', err);
+      console.warn('Logout error:', err);
     } finally {
       localStorage.removeItem('ve_current_user');
+      localStorage.removeItem('ve_cart');
     }
   },
 
   me: async () => {
     try {
       const res = await request('/auth/me');
-      if (res.data) {
-        setLocal('current_user', res.data);
-        return res.data;
+      if (res.data && res.data.userId) {
+        let profile = { ...res.data };
+        // If member, attempt to retrieve loyalty tier and discount
+        if (profile.role === 'MEMBER') {
+          try {
+            const [ptsRes, tierRes, discRes] = await Promise.allSettled([
+              request(`/members/${profile.userId}/points`),
+              request(`/members/${profile.userId}/tier`),
+              request(`/members/${profile.userId}/discount`),
+            ]);
+            if (ptsRes.status === 'fulfilled' && ptsRes.value.data) {
+              profile.loyaltyPoints = ptsRes.value.data.loyaltyPoints ?? 0;
+            }
+            if (tierRes.status === 'fulfilled' && tierRes.value.data) {
+              profile.tier = tierRes.value.data.tier ?? 'Bronze';
+            }
+            if (discRes.status === 'fulfilled' && discRes.value.data) {
+              profile.discountPercentage = discRes.value.data.discountPercentage ?? 0;
+            }
+          } catch (e) {
+            console.warn('Could not load extra member details:', e);
+          }
+        }
+        setLocal('current_user', profile);
+        return profile;
       }
+      localStorage.removeItem('ve_current_user');
+      return null;
     } catch (err) {
+      if (err.status === 401) {
+        localStorage.removeItem('ve_current_user');
+        return null;
+      }
       if (err.isNetworkError) {
+        // Return cached session if network hiccup
         return getLocal('current_user', null);
       }
-      throw err;
+      return null;
     }
   },
 
@@ -710,8 +726,8 @@ export const memberApi = {
       const res = await request(`/members/${memberId}/points`);
       return res.data.loyaltyPoints;
     } catch {
-      const user = getLocal('current_user', DEMO_PRESET_USERS[0]);
-      return user.loyaltyPoints || 650;
+      const user = getLocal('current_user', {});
+      return user?.loyaltyPoints || 0;
     }
   },
 
@@ -720,8 +736,8 @@ export const memberApi = {
       const res = await request(`/members/${memberId}/total-points`);
       return res.data.totalEarnedPoints;
     } catch {
-      const user = getLocal('current_user', DEMO_PRESET_USERS[0]);
-      return user.totalEarnedPoints || 650;
+      const user = getLocal('current_user', {});
+      return user?.totalEarnedPoints || 0;
     }
   },
 
@@ -730,8 +746,8 @@ export const memberApi = {
       const res = await request(`/members/${memberId}/tier`);
       return res.data.tier;
     } catch {
-      const user = getLocal('current_user', DEMO_PRESET_USERS[0]);
-      return user.tier || 'Silver';
+      const user = getLocal('current_user', {});
+      return user?.tier || 'Bronze';
     }
   },
 
@@ -740,8 +756,8 @@ export const memberApi = {
       const res = await request(`/members/${memberId}/discount`);
       return res.data.discountPercentage;
     } catch {
-      const user = getLocal('current_user', DEMO_PRESET_USERS[0]);
-      return user.discountPercentage || 5.0;
+      const user = getLocal('current_user', {});
+      return user?.discountPercentage || 0.0;
     }
   },
 

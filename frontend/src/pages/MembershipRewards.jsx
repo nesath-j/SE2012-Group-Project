@@ -48,18 +48,16 @@ export default function MembershipRewards() {
         setPoints(pts);
         setTotalPoints(total);
         setTier(t || user.tier || 'Silver');
-        setDiscount(d || user.discountPercentage || 5.0);
-        setPrescriptionPath(user.prescriptionDocPath || '/uploads/prescriptions/rx_user_1.pdf');
+        setDiscount(d || user.discountPercentage || 0.0);
+        setPrescriptionPath(user.prescriptionDocPath || '');
+        handleCalculateRedemption(pts > 100 ? 100 : pts);
       } else {
-        // Fallback default sample stats
-        setPoints(user?.loyaltyPoints || 650);
-        setTotalPoints(user?.totalEarnedPoints || 650);
-        setTier(user?.tier || 'Silver');
-        setDiscount(user?.discountPercentage || 5.0);
-        setPrescriptionPath('/uploads/prescriptions/rx_sample.pdf');
+        setPoints(0);
+        setTotalPoints(0);
+        setTier('Bronze');
+        setDiscount(0.0);
+        setPrescriptionPath('');
       }
-
-      handleCalculateRedemption(200);
     } catch (err) {
       console.error(err);
     } finally {

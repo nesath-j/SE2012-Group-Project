@@ -8,40 +8,42 @@ import {
   staffApi
 } from '../services/api';
 import {
+  Check,
   ShieldCheck,
   Stethoscope,
   Wrench,
   CheckCircle2,
-  Clock,
   Plus,
   Trash2,
   Edit,
   Save,
   Truck,
-  Package,
-  Layers,
   Award,
-  Users,
-  Search,
-  Check,
-  X,
-  FileText,
   AlertCircle
 } from 'lucide-react';
 
-export default function StaffPortal() {
-  const { user, role, switchDemoUser, showToast, setIsAuthModalOpen, setAuthModalMode } = useAuth();
+export default function StaffPortal({ onNavigateTab }) {
+  const { user, role, isDoctor, isEmployee, isManager, isAdmin, isStaff, showToast, setIsAuthModalOpen, setAuthModalMode } = useAuth();
+
+  // Determine authorized default tab
+  const getDefaultTab = () => {
+    if (role === 'DOCTOR') return 'doctor';
+    if (role === 'EMPLOYEE') return 'technician';
+    return 'admin';
+  };
 
   // Active workspace tab: 'doctor' | 'technician' | 'admin'
-  const [staffTab, setStaffTab] = useState(
-    role === 'DOCTOR' ? 'doctor' : role === 'EMPLOYEE' ? 'technician' : 'admin'
-  );
+  const [staffTab, setStaffTab] = useState(getDefaultTab());
 
-  // Sync tab when user role changes
+  // Keep tab restricted if user changes
   useEffect(() => {
     if (role === 'DOCTOR') setStaffTab('doctor');
     else if (role === 'EMPLOYEE') setStaffTab('technician');
-    else if (role === 'ADMIN' || role === 'MANAGER') setStaffTab('admin');
+    else if (role === 'MANAGER' || role === 'ADMIN') {
+      if (staffTab !== 'admin' && staffTab !== 'technician' && staffTab !== 'doctor') {
+        setStaffTab('admin');
+      }
+    }
   }, [role]);
 
   // -------------------------------------------------------------
@@ -257,6 +259,61 @@ export default function StaffPortal() {
     }
   };
 
+  if (!user || !isStaff) {
+    return (
+      <div className="container animate-fade-in" style={{ paddingTop: '4rem', paddingBottom: '5rem', maxWidth: '650px', margin: '0 auto', textAlign: 'center' }}>
+        <div style={{
+          backgroundColor: '#ffffff',
+          borderRadius: '24px',
+          border: '1px solid #e2e8f0',
+          padding: '3.5rem 2rem',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.06)',
+        }}>
+          <div style={{
+            width: '72px',
+            height: '72px',
+            borderRadius: '50%',
+            backgroundColor: '#fee2e2',
+            color: '#ef4444',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '1.5rem',
+          }}>
+            <AlertCircle size={38} />
+          </div>
+          <h2 style={{ fontSize: '1.75rem', marginBottom: '0.75rem', color: '#0f172a' }}>
+            Staff Access Restricted (403)
+          </h2>
+          <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '2rem' }}>
+            {user
+              ? `You are signed in as a Customer Member (${user.firstName} ${user.lastName}). Internal clinic, technician, managerial, and administrative portals are restricted to authorized employees.`
+              : 'You must be signed in with an authorized Doctor, Optical Technician, Manager, or Administrator account to access the internal staff portal.'}
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            {!user ? (
+              <button
+                onClick={() => {
+                  setAuthModalMode('login');
+                  setIsAuthModalOpen(true);
+                }}
+                className="btn btn-primary"
+              >
+                Sign In with Staff Account
+              </button>
+            ) : null}
+            <button
+              onClick={() => onNavigateTab && onNavigateTab('shop')}
+              className="btn btn-secondary"
+            >
+              Return to Eyewear Catalog
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container animate-fade-in" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
       {/* Staff Workspace Header */}
@@ -294,22 +351,12 @@ export default function StaffPortal() {
             Vision Express Staff Management Workspace
           </h2>
           <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '0.35rem' }}>
-            Active Persona: <strong style={{ color: '#38bdf8' }}>{user ? `${user.firstName} ${user.lastName}` : 'Guest'}</strong> (Role: <span className="badge badge-primary">{role}</span>)
+            Active Staff Member: <strong style={{ color: '#38bdf8' }}>{user.firstName} {user.lastName}</strong> (Role: <span className="badge badge-primary">{role}</span>)
           </p>
         </div>
-
-        {/* Quick Persona Switcher button */}
-        <button
-          onClick={() => { setAuthModalMode('presets'); setIsAuthModalOpen(true); }}
-          className="btn btn-secondary btn-sm"
-          style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
-        >
-          <Users size={16} />
-          <span>Switch Staff Role</span>
-        </button>
       </div>
 
-      {/* Navigation Sub-Tabs */}
+      {/* Navigation Sub-Tabs - Strictly restricted by backend role */}
       <div style={{
         display: 'flex',
         gap: '0.5rem',
@@ -317,65 +364,77 @@ export default function StaffPortal() {
         marginBottom: '2rem',
         overflowX: 'auto',
       }}>
-        <button
-          onClick={() => setStaffTab('doctor')}
-          style={{
-            padding: '0.85rem 1.4rem',
-            fontSize: '0.95rem',
-            fontWeight: staffTab === 'doctor' ? 700 : 500,
-            color: staffTab === 'doctor' ? '#0284c7' : '#64748b',
-            borderBottom: `3px solid ${staffTab === 'doctor' ? '#0284c7' : 'transparent'}`,
-            marginBottom: '-2px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            cursor: 'pointer',
-            background: 'none',
-          }}
-        >
-          <Stethoscope size={18} />
-          <span>Doctor Consultation Desk</span>
-        </button>
+        {/* Doctor Desk: Visible to DOCTOR or ADMIN */}
+        {(isDoctor || isAdmin) && (
+          <button
+            onClick={() => setStaffTab('doctor')}
+            style={{
+              padding: '0.85rem 1.4rem',
+              fontSize: '0.95rem',
+              fontWeight: staffTab === 'doctor' ? 700 : 500,
+              color: staffTab === 'doctor' ? '#0284c7' : '#64748b',
+              borderBottom: `3px solid ${staffTab === 'doctor' ? '#0284c7' : 'transparent'}`,
+              marginBottom: '-2px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              cursor: 'pointer',
+              background: 'none',
+              border: 'none',
+            }}
+          >
+            <Stethoscope size={18} />
+            <span>Doctor Consultation Desk</span>
+          </button>
+        )}
 
-        <button
-          onClick={() => setStaffTab('technician')}
-          style={{
-            padding: '0.85rem 1.4rem',
-            fontSize: '0.95rem',
-            fontWeight: staffTab === 'technician' ? 700 : 500,
-            color: staffTab === 'technician' ? '#0284c7' : '#64748b',
-            borderBottom: `3px solid ${staffTab === 'technician' ? '#0284c7' : 'transparent'}`,
-            marginBottom: '-2px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            cursor: 'pointer',
-            background: 'none',
-          }}
-        >
-          <Wrench size={18} />
-          <span>Optical Technician & Dispatch</span>
-        </button>
+        {/* Technician Desk: Visible to EMPLOYEE, MANAGER, or ADMIN */}
+        {(isEmployee || isManager || isAdmin) && (
+          <button
+            onClick={() => setStaffTab('technician')}
+            style={{
+              padding: '0.85rem 1.4rem',
+              fontSize: '0.95rem',
+              fontWeight: staffTab === 'technician' ? 700 : 500,
+              color: staffTab === 'technician' ? '#0284c7' : '#64748b',
+              borderBottom: `3px solid ${staffTab === 'technician' ? '#0284c7' : 'transparent'}`,
+              marginBottom: '-2px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              cursor: 'pointer',
+              background: 'none',
+              border: 'none',
+            }}
+          >
+            <Wrench size={18} />
+            <span>Optical Technician & Dispatch</span>
+          </button>
+        )}
 
-        <button
-          onClick={() => setStaffTab('admin')}
-          style={{
-            padding: '0.85rem 1.4rem',
-            fontSize: '0.95rem',
-            fontWeight: staffTab === 'admin' ? 700 : 500,
-            color: staffTab === 'admin' ? '#0284c7' : '#64748b',
-            borderBottom: `3px solid ${staffTab === 'admin' ? '#0284c7' : 'transparent'}`,
-            marginBottom: '-2px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            cursor: 'pointer',
-            background: 'none',
-          }}
-        >
-          <ShieldCheck size={18} />
-          <span>Admin Payments & Inventory</span>
-        </button>
+        {/* Admin Desk: Visible to ADMIN or MANAGER */}
+        {(isAdmin || isManager) && (
+          <button
+            onClick={() => setStaffTab('admin')}
+            style={{
+              padding: '0.85rem 1.4rem',
+              fontSize: '0.95rem',
+              fontWeight: staffTab === 'admin' ? 700 : 500,
+              color: staffTab === 'admin' ? '#0284c7' : '#64748b',
+              borderBottom: `3px solid ${staffTab === 'admin' ? '#0284c7' : 'transparent'}`,
+              marginBottom: '-2px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              cursor: 'pointer',
+              background: 'none',
+              border: 'none',
+            }}
+          >
+            <ShieldCheck size={18} />
+            <span>{isAdmin ? 'Admin Payments & Inventory' : 'Store & Inventory Management'}</span>
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -721,13 +780,19 @@ export default function StaffPortal() {
                         </td>
                         <td style={{ padding: '0.85rem 1rem' }}>
                           {!isConfirmed ? (
-                            <button
-                              onClick={() => handleConfirmOrderPayment(ord.orderId)}
-                              className="btn btn-primary btn-sm"
-                            >
-                              <CheckCircle2 size={14} />
-                              <span>Confirm Payment</span>
-                            </button>
+                            isAdmin ? (
+                              <button
+                                onClick={() => handleConfirmOrderPayment(ord.orderId)}
+                                className="btn btn-primary btn-sm"
+                              >
+                                <CheckCircle2 size={14} />
+                                <span>Confirm Payment</span>
+                              </button>
+                            ) : (
+                              <span style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic' }}>
+                                Admin Authorization Required
+                              </span>
+                            )
                           ) : (
                             <span style={{ color: '#059669', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                               <Check size={14} /> Confirmed

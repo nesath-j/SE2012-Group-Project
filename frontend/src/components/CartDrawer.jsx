@@ -50,7 +50,7 @@ export default function CartDrawer({ onNavigateOrders }) {
     }
 
     if (role !== 'MEMBER') {
-      showToast('Only Members can place optical orders. Please switch to a Member persona.', 'error');
+      showToast('Only Customer Members can place optical orders. Staff accounts cannot purchase products.', 'error');
       return;
     }
 
