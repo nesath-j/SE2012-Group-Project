@@ -43,7 +43,14 @@ public class ProductService {
 
     // 4. SEARCH PRODUCTS (Added)
     public List<Product> searchProducts(String keyword) {
-        return productRepository.findByNameContainingIgnoreCase(keyword);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return productRepository.findAll();
+        }
+        return productRepository.findByNameContainingIgnoreCase(keyword.trim());
+    }
+
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 
     // 5. CHECK STOCK

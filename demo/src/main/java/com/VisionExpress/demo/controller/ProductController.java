@@ -38,10 +38,15 @@ public class ProductController {
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return ResponseEntity.ok(productService.getAllProducts());
+    }
+
     @GetMapping("/search")
-    public ResponseEntity<List<Product>> searchProducts(@RequestParam("keyword") String keyword) {
-        List<Product> Products = productService.searchProducts(keyword);
-        return ResponseEntity.ok(Products);
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam(value = "keyword", required = false, defaultValue = "") String keyword) {
+        List<Product> products = productService.searchProducts(keyword);
+        return ResponseEntity.ok(products);
     }
 
     @PatchMapping("/{id}/stock")

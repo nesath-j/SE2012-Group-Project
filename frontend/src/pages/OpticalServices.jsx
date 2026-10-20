@@ -21,7 +21,7 @@ export default function OpticalServices({ onNavigateTab }) {
   const [services, setServices] = useState(['Frame Adjustment', 'Lens Fitting', 'Repair']);
   const [selectedService, setSelectedService] = useState('Frame Adjustment');
   const [technicians, setTechnicians] = useState([]);
-  const [selectedTechnicianId, setSelectedTechnicianId] = useState(6);
+  const [selectedTechnicianId, setSelectedTechnicianId] = useState('');
   const [appointmentDate, setAppointmentDate] = useState('');
   const [appointmentTime, setAppointmentTime] = useState('10:30');
   const [memberAppointments, setMemberAppointments] = useState([]);
@@ -129,7 +129,7 @@ export default function OpticalServices({ onNavigateTab }) {
       title: 'Precision Frame Adjustment & Ergonomics',
       desc: 'Expert temple tensioning, nose pad replacement, bridge realignment, and pantoscopic tilt correction for maximum comfort.',
       duration: '20 Mins',
-      price: 'Free for Members ($15 non-members)',
+      price: 'Free for Members (Rs 200 non-members)',
       icon: Sliders
     },
     'Lens Fitting': {
@@ -143,7 +143,7 @@ export default function OpticalServices({ onNavigateTab }) {
       title: 'Ultrasonic Optical Restoration & Repair',
       desc: 'Hinge micro-soldering, stripped screw extraction, ultrasonic sonic bath cleaning, and full acetate frame buffing and shine polish.',
       duration: '30 Mins',
-      price: 'Free for Gold/Platinum Members ($25 standard)',
+      price: 'Free for Gold/Platinum Members (Rs 500 standard)',
       icon: Wrench
     }
   };

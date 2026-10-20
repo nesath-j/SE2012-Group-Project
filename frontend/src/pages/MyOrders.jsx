@@ -249,11 +249,11 @@ export default function MyOrders({ onNavigateShop }) {
                       <div>
                         <strong>{item.product?.name || `Product ID #${item.product?.productId || 'Item'}`}</strong>
                         <div style={{ fontSize: '0.785rem', color: '#64748b' }}>
-                          Quantity: {item.quantity} × ${(item.unitPrice || item.product?.price || 100).toFixed(2)}
+                          Quantity: {item.quantity} × Rs {(item.unitPrice || item.product?.price || 100).toFixed(2)}
                         </div>
                       </div>
                       <div style={{ fontWeight: 700, color: '#0f172a' }}>
-                        ${((item.quantity || 1) * (item.unitPrice || item.product?.price || 100)).toFixed(2)}
+                        Rs {((item.quantity || 1) * (item.unitPrice || item.product?.price || 100)).toFixed(2)}
                       </div>
                     </div>
                   ))}

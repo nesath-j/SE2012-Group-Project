@@ -6,12 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="3d54daeb-f2a2-4f1a-8d47-32d7d4739b2a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/AuthModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/AuthModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/controller/ProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/Order.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/OrderItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/model/OrderItem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/OrderService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/ProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/VisionExpress/demo/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/resources/application.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/CartDrawer.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/CartDrawer.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/context/AuthContext.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/context/AuthContext.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DoctorAppointments.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DoctorAppointments.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomeShop.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HomeShop.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/MembershipRewards.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/MembershipRewards.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/MyOrders.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/MyOrders.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/OpticalServices.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/OpticalServices.jsx" afterDir="false" />

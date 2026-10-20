@@ -49,7 +49,17 @@ public class SecurityConfig {
                                 "/api/users/doctors",
                                 "/api/users/services",
                                 "/api/doctors",
-                                "/api/doctors/*"
+                                "/api/doctors/**",
+                                "/api/products",
+                                "/api/products/**",
+                                "/api/doctor-schedules",
+                                "/api/doctor-schedules/**",
+                                "/api/loyalty-tiers",
+                                "/api/loyalty-tiers/**",
+                                "/api/couriers",
+                                "/api/couriers/**",
+                                "/api/employees",
+                                "/api/employees/**"
                         ).permitAll()
 
                         // Public registration
@@ -139,7 +149,35 @@ public class SecurityConfig {
                         ).hasRole("MEMBER")
 
                         .requestMatchers("/api/orders/**")
-                        .hasRole("ADMIN")
+                        .hasAnyRole("ADMIN", "MANAGER")
+
+                        // Product modifications
+                        .requestMatchers(
+                                HttpMethod.POST, "/api/products/add"
+                        ).hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(
+                                HttpMethod.PUT, "/api/products/update/**"
+                        ).hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(
+                                HttpMethod.DELETE, "/api/products/delete/**"
+                        ).hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(
+                                HttpMethod.PATCH, "/api/products/*/stock"
+                        ).hasAnyRole("ADMIN", "MANAGER", "EMPLOYEE")
+
+                        // Couriers management
+                        .requestMatchers(
+                                HttpMethod.POST, "/api/couriers/**"
+                        ).hasAnyRole("ADMIN", "MANAGER", "EMPLOYEE")
+
+                        // Doctor schedules creation
+                        .requestMatchers(
+                                HttpMethod.POST, "/api/doctor-schedules/**"
+                        ).hasAnyRole("DOCTOR", "ADMIN")
+
+                        // Deliveries operations
+                        .requestMatchers("/api/deliveries/**")
+                        .hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN", "MEMBER")
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

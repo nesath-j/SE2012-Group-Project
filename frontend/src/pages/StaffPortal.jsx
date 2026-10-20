@@ -19,7 +19,8 @@ import {
   Save,
   Truck,
   Award,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 
 export default function StaffPortal({ onNavigateTab }) {
@@ -871,7 +872,7 @@ export default function StaffPortal({ onNavigateTab }) {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Price ($)</label>
+                    <label className="form-label">Price (Rs)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -949,7 +950,7 @@ export default function StaffPortal({ onNavigateTab }) {
                       <td style={{ padding: '0.75rem 1rem' }}>
                         <span className="badge badge-primary">{p.category}</span>
                       </td>
-                      <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>${p.price?.toFixed(2)}</td>
+                      <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>Rs {p.price?.toFixed(2)}</td>
                       <td style={{ padding: '0.75rem 1rem' }}>
                         <button
                           onClick={() => handleUpdateStock(p.productId, p.stockQuantity)}
