@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://visionexpress-api-cqeefyagd5gvaygk.southeastasia-01.azurewebsites.net/api/$1"
+    }
+  ]
+}
