@@ -1,7 +1,7 @@
 <DataSourcesHistory>
-  <DataSourceFromHistory isRemovedFromProject="false">
-    <data-source source="LOCAL" name="@localhost" uuid="3a9d8589-07ae-4018-8121-c88ef7655753">
-      <database-info product="MySQL" version="8.0.46" jdbc-version="4.2" driver-name="MySQL Connector/J" driver-version="mysql-connector-j-9.7.0 (Revision: 0aade1f13bcc98faf7dda5c02e782481eb291f62)" dbms="MYSQL" exact-version="8.0.46" exact-driver-version="9.7">
+  <DataSourceFromHistory isRemovedFromProject="true">
+    <data-source source="LOCAL" name="@localhost" uuid="0de350f5-88df-4c85-9966-4c8e907f6e2e">
+      <database-info product="MySQL" version="9.7.1" jdbc-version="4.2" driver-name="MySQL Connector/J" driver-version="mysql-connector-j-9.7.0 (Revision: 0aade1f13bcc98faf7dda5c02e782481eb291f62)" dbms="MYSQL" exact-version="9.7.1" exact-driver-version="9.7">
         <extra-name-characters>$</extra-name-characters>
         <identifier-quote-string>`</identifier-quote-string>
       </database-info>
@@ -19,10 +19,7 @@
       <user-name>root</user-name>
       <schema-mapping>
         <introspection-scope>
-          <node kind="schema">
-            <name qname="@" />
-            <name qname="visionexpress" />
-          </node>
+          <node kind="schema" qname="@" />
         </introspection-scope>
       </schema-mapping>
       <working-dir>$ProjectFileDir$</working-dir>

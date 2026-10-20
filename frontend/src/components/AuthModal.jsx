@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { X, Lock, Mail, User, Phone, CheckCircle, ShieldCheck, ArrowRight } from 'lucide-react';
-import { DEMO_PRESET_USERS } from '../services/mockData';
+import { X, Lock, Mail, User, Phone, CheckCircle, ShieldCheck } from 'lucide-react';
 
 export default function AuthModal() {
   const {
@@ -10,8 +9,7 @@ export default function AuthModal() {
     authModalMode,
     setAuthModalMode,
     login,
-    register,
-    switchDemoUser
+    register
   } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -90,7 +88,7 @@ export default function AuthModal() {
             <button
               onClick={() => { setAuthModalMode('login'); setErrorMessage(''); }}
               style={{
-                padding: '0.45rem 0.85rem',
+                padding: '0.45rem 1rem',
                 borderRadius: '8px',
                 fontSize: '0.875rem',
                 fontWeight: authModalMode === 'login' ? 700 : 500,
@@ -98,6 +96,7 @@ export default function AuthModal() {
                 backgroundColor: authModalMode === 'login' ? '#ffffff' : 'transparent',
                 boxShadow: authModalMode === 'login' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
                 cursor: 'pointer',
+                border: 'none',
               }}
             >
               Sign In
@@ -105,7 +104,7 @@ export default function AuthModal() {
             <button
               onClick={() => { setAuthModalMode('register'); setErrorMessage(''); }}
               style={{
-                padding: '0.45rem 0.85rem',
+                padding: '0.45rem 1rem',
                 borderRadius: '8px',
                 fontSize: '0.875rem',
                 fontWeight: authModalMode === 'register' ? 700 : 500,
@@ -113,24 +112,10 @@ export default function AuthModal() {
                 backgroundColor: authModalMode === 'register' ? '#ffffff' : 'transparent',
                 boxShadow: authModalMode === 'register' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
                 cursor: 'pointer',
+                border: 'none',
               }}
             >
-              Register
-            </button>
-            <button
-              onClick={() => { setAuthModalMode('presets'); setErrorMessage(''); }}
-              style={{
-                padding: '0.45rem 0.85rem',
-                borderRadius: '8px',
-                fontSize: '0.875rem',
-                fontWeight: authModalMode === 'presets' ? 700 : 500,
-                color: authModalMode === 'presets' ? '#0284c7' : '#64748b',
-                backgroundColor: authModalMode === 'presets' ? '#ffffff' : 'transparent',
-                boxShadow: authModalMode === 'presets' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-                cursor: 'pointer',
-              }}
-            >
-              Test Roles
+              Register Member
             </button>
           </div>
 
@@ -142,6 +127,8 @@ export default function AuthModal() {
               borderRadius: '8px',
               display: 'flex',
               cursor: 'pointer',
+              background: 'transparent',
+              border: 'none',
             }}
           >
             <X size={20} />
@@ -170,8 +157,10 @@ export default function AuthModal() {
           {authModalMode === 'login' && (
             <form onSubmit={handleLoginSubmit}>
               <div style={{ marginBottom: '1.25rem', textAlign: 'center' }}>
-                <h3 style={{ fontSize: '1.35rem', marginBottom: '0.35rem' }}>Welcome to Vision Express</h3>
-                <p style={{ fontSize: '0.875rem' }}>Sign in to access your appointments, orders, and loyalty points</p>
+                <h3 style={{ fontSize: '1.35rem', marginBottom: '0.35rem' }}>Vision Express Portal</h3>
+                <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                  Sign in with your verified credentials (Members, Doctors, Technicians, Managers, Admins)
+                </p>
               </div>
 
               <div className="form-group">
@@ -198,7 +187,7 @@ export default function AuthModal() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder="Enter password"
                     className="form-input"
                     style={{ paddingLeft: '2.5rem' }}
                   />
@@ -212,17 +201,17 @@ export default function AuthModal() {
                 className="btn btn-primary"
                 style={{ width: '100%', marginTop: '0.75rem' }}
               >
-                {loading ? <span className="spinner" /> : 'Log In'}
+                {loading ? <span className="spinner" /> : 'Sign In'}
               </button>
 
               <div style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.825rem', color: '#64748b' }}>
-                Testing the system?{' '}
+                New customer?{' '}
                 <button
                   type="button"
-                  onClick={() => setAuthModalMode('presets')}
-                  style={{ color: '#0284c7', fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }}
+                  onClick={() => { setAuthModalMode('register'); setErrorMessage(''); }}
+                  style={{ color: '#0284c7', fontWeight: 600, textDecoration: 'underline', cursor: 'pointer', background: 'none', border: 'none' }}
                 >
-                  Click here for quick role presets
+                  Create a Member account
                 </button>
               </div>
             </form>
@@ -233,7 +222,9 @@ export default function AuthModal() {
             <form onSubmit={handleRegisterSubmit}>
               <div style={{ marginBottom: '1.25rem', textAlign: 'center' }}>
                 <h3 style={{ fontSize: '1.35rem', marginBottom: '0.35rem' }}>Join Vision Express</h3>
-                <p style={{ fontSize: '0.875rem' }}>Create your member profile to unlock loyalty rewards & bookings</p>
+                <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                  Create your customer member profile to unlock rewards, prescriptions, and clinic appointments
+                </p>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -244,7 +235,7 @@ export default function AuthModal() {
                     required
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Sarah"
+                    placeholder="First name"
                     className="form-input"
                   />
                 </div>
@@ -255,7 +246,7 @@ export default function AuthModal() {
                     required
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Edirisingha"
+                    placeholder="Last name"
                     className="form-input"
                   />
                 </div>
@@ -268,7 +259,7 @@ export default function AuthModal() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="sarah@example.com"
+                  placeholder="your.email@example.com"
                   className="form-input"
                 />
               </div>
@@ -280,13 +271,13 @@ export default function AuthModal() {
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="074 683 7004"
+                  placeholder="074 000 0000"
                   className="form-input"
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Password (min. 8 chars)</label>
+                <label className="form-label">Password (min. 8 characters)</label>
                 <input
                   type="password"
                   required
@@ -303,59 +294,20 @@ export default function AuthModal() {
                 className="btn btn-primary"
                 style={{ width: '100%', marginTop: '0.75rem' }}
               >
-                {loading ? <span className="spinner" /> : 'Create Account'}
+                {loading ? <span className="spinner" /> : 'Register Member Account'}
               </button>
+
+              <div style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.825rem', color: '#64748b' }}>
+                Already registered?{' '}
+                <button
+                  type="button"
+                  onClick={() => { setAuthModalMode('login'); setErrorMessage(''); }}
+                  style={{ color: '#0284c7', fontWeight: 600, textDecoration: 'underline', cursor: 'pointer', background: 'none', border: 'none' }}
+                >
+                  Sign in here
+                </button>
+              </div>
             </form>
-          )}
-
-          {/* Mode 3: Quick Role Presets */}
-          {authModalMode === 'presets' && (
-            <div>
-              <div style={{ marginBottom: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>Select Persona</h3>
-                <p style={{ fontSize: '0.85rem' }}>
-                  Instantly switch roles to test customer, clinical, technician, and administrative features:
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {DEMO_PRESET_USERS.map((preset) => (
-                  <div
-                    key={preset.userId}
-                    onClick={() => switchDemoUser(preset)}
-                    style={{
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      padding: '0.85rem 1rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
-                      backgroundColor: '#f8fafc',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.borderColor = '#0284c7'}
-                    onMouseLeave={(e) => e.currentTarget.style.borderColor = '#e2e8f0'}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
-                        <strong style={{ fontSize: '0.925rem' }}>{preset.firstName} {preset.lastName}</strong>
-                        <span className={`badge badge-${preset.role === 'ADMIN' ? 'rose' : preset.role === 'DOCTOR' ? 'primary' : preset.role === 'EMPLOYEE' ? 'emerald' : 'amber'}`}>
-                          {preset.role}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.785rem', color: '#64748b' }}>
-                        {preset.roleTitle || preset.specialization || `${preset.tier} Tier Member (${preset.loyaltyPoints} pts)`}
-                      </div>
-                      <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
-                        {preset.email}
-                      </div>
-                    </div>
-                    <ArrowRight size={18} color="#0284c7" />
-                  </div>
-                ))}
-              </div>
-            </div>
           )}
         </div>
       </div>

@@ -424,17 +424,17 @@ export default function HomeShop({ onNavigateTab }) {
                     <div>
                       <div style={{ fontSize: '0.725rem', color: '#64748b', fontWeight: 600 }}>PRICE</div>
                       <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
-                        ${product.price.toFixed(2)}
+                        Rs {product.price.toFixed(2)}
                       </div>
                     </div>
 
                     <button
                       onClick={() => addToCart(product, 1)}
                       className="btn btn-primary btn-sm"
-                      style={{ padding: '0.5rem 0.85rem' }}
+                      style={{ padding: '0.6rem 0.75rem' }}
                     >
                       <Plus size={16} />
-                      <span>Add to Bag</span>
+                      <span>Add to Cart</span>
                     </button>
                   </div>
                 </div>
@@ -501,7 +501,7 @@ export default function HomeShop({ onNavigateTab }) {
 
               <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{selectedProduct.name}</h2>
               <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0284c7', marginBottom: '1rem' }}>
-                ${selectedProduct.price.toFixed(2)}
+                Rs {selectedProduct.price.toFixed(2)}
               </div>
 
               <p style={{ fontSize: '0.925rem', lineHeight: 1.6, color: '#475569', marginBottom: '1.5rem' }}>
@@ -548,7 +548,7 @@ export default function HomeShop({ onNavigateTab }) {
                 style={{ width: '100%', padding: '0.85rem' }}
               >
                 <Plus size={18} />
-                <span>Add to Shopping Bag (${selectedProduct.price.toFixed(2)})</span>
+                <span>Add to Shopping Cart (Rs {selectedProduct.price.toFixed(2)})</span>
               </button>
             </div>
           </div>

@@ -14,7 +14,19 @@ import MyOrders from './pages/MyOrders';
 import StaffPortal from './pages/StaffPortal';
 
 function MainLayout() {
+  const { user, isStaff, isMember } = useAuth();
   const [activeTab, setActiveTab] = useState('shop');
+
+  // If user logs out while in protected tab, bounce back to public shop
+  React.useEffect(() => {
+    if (!user) {
+      if (activeTab === 'orders' || activeTab === 'rewards' || activeTab === 'staff') {
+        setActiveTab('shop');
+      }
+    } else if (isStaff && (activeTab === 'orders' || activeTab === 'rewards')) {
+      setActiveTab('staff');
+    }
+  }, [user, isStaff, activeTab]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
@@ -27,10 +39,10 @@ function MainLayout() {
           <HomeShop onNavigateTab={setActiveTab} />
         )}
         {activeTab === 'doctors' && (
-          <DoctorAppointments />
+          <DoctorAppointments onNavigateTab={setActiveTab} />
         )}
         {activeTab === 'services' && (
-          <OpticalServices />
+          <OpticalServices onNavigateTab={setActiveTab} />
         )}
         {activeTab === 'rewards' && (
           <MembershipRewards />
@@ -39,7 +51,7 @@ function MainLayout() {
           <MyOrders onNavigateShop={() => setActiveTab('shop')} />
         )}
         {activeTab === 'staff' && (
-          <StaffPortal />
+          <StaffPortal onNavigateTab={setActiveTab} />
         )}
       </main>
 

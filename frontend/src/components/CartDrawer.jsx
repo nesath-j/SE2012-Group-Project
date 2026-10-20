@@ -50,7 +50,7 @@ export default function CartDrawer({ onNavigateOrders }) {
     }
 
     if (role !== 'MEMBER') {
-      showToast('Only Members can place optical orders. Please switch to a Member persona.', 'error');
+      showToast('Only Customer Members can place optical orders. Staff accounts cannot purchase products.', 'error');
       return;
     }
 
@@ -217,7 +217,7 @@ export default function CartDrawer({ onNavigateOrders }) {
               gap: '1rem',
             }}>
               <ShoppingBag size={48} strokeWidth={1.5} />
-              <p style={{ fontSize: '1rem', color: '#64748b' }}>Your optical shopping bag is currently empty.</p>
+              <p style={{ fontSize: '1rem', color: '#64748b' }}>Your shopping cart is currently empty.</p>
               <button
                 onClick={() => setIsCartOpen(false)}
                 className="btn btn-outline btn-sm"

@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Service
 public class OrderService {
@@ -113,6 +114,8 @@ public class OrderService {
         order.setPaymentStatus(Order.PaymentStatus.PENDING);
         order.setLoyaltyPointsAwarded(false);
 
+        order.setOrderDate(java.time.LocalDateTime.now());
+        order.setOrderStatus("Processing");
         return orderRepository.save(order);
     }
 
@@ -169,6 +172,26 @@ public class OrderService {
         Member member = memberRepository.findById(order.getMemberId())
                 .orElseThrow(() ->
                         new IllegalArgumentException("Member not found."));
+
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+
+            if (product == null) {
+                throw new IllegalStateException("Product missing from order item.");
+            }
+
+            int newStock = product.getStockQuantity() - item.getQuantity();
+
+            if (newStock < 0) {
+                throw new IllegalStateException(
+                        "Insufficient stock for product: " + product.getName()
+                                + ". Available: " + product.getStockQuantity()
+                                + ", Requested: " + item.getQuantity());
+            }
+
+            product.setStockQuantity(newStock);
+            productRepository.save(product);
+        }
 
         order.setPaymentStatus(Order.PaymentStatus.CONFIRMED);
 

@@ -1,60 +1,77 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authApi } from '../services/api';
-import { DEMO_PRESET_USERS } from '../services/mockData';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    // Default initial session to member Sarah for immediate interactive exploration
     const saved = localStorage.getItem('ve_current_user');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { return DEMO_PRESET_USERS[0]; }
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.userId && parsed.email) {
+          return parsed;
+        }
+      } catch (e) {
+        return null;
+      }
     }
-    return DEMO_PRESET_USERS[0];
+    return null;
   });
 
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem('ve_cart');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { return []; }
-    }
-    return [
-      {
-        product: {
-          productId: 1,
-          name: 'Ray-Ban Wayfarer Classic',
-          price: 165.00,
-          category: 'Eyeglasses',
-          stockQuantity: 45,
-          pic: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80'
-        },
-        quantity: 1
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return [];
       }
-    ];
+    }
+    return [];
   });
 
   const [toasts, setToasts] = useState([]);
   const [isBackendOnline, setIsBackendOnline] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState('login'); // 'login' | 'register' | 'switch'
+  const [authModalMode, setAuthModalMode] = useState('login'); // 'login' | 'register'
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
-  // Check Spring Boot backend health on port 8081
+  // Synchronize authentication session with Spring Boot backend
   useEffect(() => {
     let isMounted = true;
-    async function checkBackend() {
+
+    async function syncSessionAndBackend() {
       try {
         const res = await fetch('/api/users/services', { method: 'GET', credentials: 'include' });
         if (res.ok && isMounted) {
           setIsBackendOnline(true);
+        } else if (isMounted) {
+          setIsBackendOnline(false);
         }
       } catch (err) {
         if (isMounted) setIsBackendOnline(false);
       }
+
+      try {
+        const currentSessionUser = await authApi.me();
+        if (isMounted) {
+          if (currentSessionUser && currentSessionUser.userId) {
+            setUser(currentSessionUser);
+          } else {
+            setUser(null);
+          }
+        }
+      } catch (err) {
+        // If 401 or offline, keep or clear state appropriately
+      } finally {
+        if (isMounted) setIsLoadingAuth(false);
+      }
     }
-    checkBackend();
-    const interval = setInterval(checkBackend, 15000);
+
+    syncSessionAndBackend();
+    const interval = setInterval(syncSessionAndBackend, 20000);
     return () => {
       isMounted = false;
       clearInterval(interval);
@@ -91,7 +108,7 @@ export function AuthProvider({ children }) {
     try {
       const loggedUser = await authApi.login(email, password);
       setUser(loggedUser);
-      showToast(`Welcome back, ${loggedUser.firstName}!`, 'success');
+      showToast(`Welcome back, ${loggedUser.firstName}! Signed in as ${loggedUser.role}.`, 'success');
       setIsAuthModalOpen(false);
       return loggedUser;
     } catch (err) {
@@ -103,23 +120,9 @@ export function AuthProvider({ children }) {
   const register = async (userData) => {
     try {
       await authApi.register(userData);
-      showToast('Registration successful! Logging you in...', 'success');
-      // Auto login or set user
-      const loggedUser = {
-        userId: Date.now(),
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email,
-        phone: userData.phone,
-        role: 'MEMBER',
-        loyaltyPoints: 0,
-        totalEarnedPoints: 0,
-        tier: 'Bronze',
-        discountPercentage: 0
-      };
-      setUser(loggedUser);
-      setIsAuthModalOpen(false);
-      return loggedUser;
+      showToast('Registration successful! Logging in...', 'success');
+      // Automatically authenticate with backend credentials
+      return await login(userData.email, userData.password);
     } catch (err) {
       showToast(err.message || 'Registration failed.', 'error');
       throw err;
@@ -127,15 +130,15 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await authApi.logout();
-    setUser(null);
-    showToast('You have been logged out.', 'info');
-  };
-
-  const switchDemoUser = (preset) => {
-    setUser(preset);
-    showToast(`Switched active profile to ${preset.firstName} (${preset.role})`, 'success');
-    setIsAuthModalOpen(false);
+    try {
+      await authApi.logout();
+    } catch (err) {
+      console.warn('Logout error:', err);
+    } finally {
+      setUser(null);
+      setCart([]);
+      showToast('You have been logged out.', 'info');
+    }
   };
 
   const addToCart = (product, quantity = 1) => {
@@ -174,14 +177,32 @@ export function AuthProvider({ children }) {
   const cartTotal = cart.reduce((acc, it) => acc + (it.product.price * it.quantity), 0);
   const cartCount = cart.reduce((acc, it) => acc + it.quantity, 0);
 
+  const role = user?.role?.toUpperCase() || 'GUEST';
+  const isAuthenticated = Boolean(user);
+  const isGuest = !user;
+  const isMember = role === 'MEMBER';
+  const isDoctor = role === 'DOCTOR';
+  const isEmployee = role === 'EMPLOYEE';
+  const isManager = role === 'MANAGER';
+  const isAdmin = role === 'ADMIN';
+  const isStaff = ['DOCTOR', 'EMPLOYEE', 'MANAGER', 'ADMIN'].includes(role);
+
   const value = {
     user,
-    role: user?.role?.toUpperCase() || 'GUEST',
+    role,
+    isAuthenticated,
+    isGuest,
+    isMember,
+    isDoctor,
+    isEmployee,
+    isManager,
+    isAdmin,
+    isStaff,
+    isLoadingAuth,
     isBackendOnline,
     login,
     register,
     logout,
-    switchDemoUser,
     cart,
     addToCart,
     removeFromCart,

@@ -121,24 +121,28 @@ export default function MyOrders({ onNavigateShop }) {
         </div>
       ) : role !== 'MEMBER' ? (
         <div style={{
-          padding: '2.5rem',
+          padding: '3rem 2rem',
           backgroundColor: '#fffbeb',
           border: '1px solid #fef3c7',
-          borderRadius: '16px',
+          borderRadius: '20px',
           textAlign: 'center',
           color: '#92400e',
+          maxWidth: '650px',
+          margin: '0 auto',
         }}>
-          <AlertCircle size={36} style={{ marginBottom: '0.5rem' }} />
-          <h3>Logged in with Staff Role ({role})</h3>
-          <p style={{ marginBottom: '1.25rem', color: '#b45309' }}>
-            To view customer order histories and upload payment receipts, switch to the <strong>Member (Sarah)</strong> persona. To manage orders and confirm payments, use the <strong>Staff Workspace</strong>.
+          <AlertCircle size={40} style={{ marginBottom: '1rem', color: '#d97706' }} />
+          <h3 style={{ fontSize: '1.35rem', marginBottom: '0.5rem' }}>Staff Account Active ({role})</h3>
+          <p style={{ marginBottom: '1.5rem', color: '#b45309', lineHeight: 1.6 }}>
+            Personal order history is reserved for registered Customer Members. As a staff member, you can oversee customer orders, dispatch deliveries, or confirm payments in the Staff Workspace.
           </p>
-          <button
-            onClick={() => { setAuthModalMode('presets'); setIsAuthModalOpen(true); }}
-            className="btn btn-secondary btn-sm"
-          >
-            Switch to Member Persona
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+            <button
+              onClick={onNavigateShop}
+              className="btn btn-secondary btn-sm"
+            >
+              Browse Eyewear Catalog
+            </button>
+          </div>
         </div>
       ) : loading ? (
         <div style={{ textAlign: 'center', padding: '4rem' }}>
@@ -245,11 +249,11 @@ export default function MyOrders({ onNavigateShop }) {
                       <div>
                         <strong>{item.product?.name || `Product ID #${item.product?.productId || 'Item'}`}</strong>
                         <div style={{ fontSize: '0.785rem', color: '#64748b' }}>
-                          Quantity: {item.quantity} × ${(item.unitPrice || item.product?.price || 100).toFixed(2)}
+                          Quantity: {item.quantity} × Rs {(item.unitPrice || item.product?.price || 100).toFixed(2)}
                         </div>
                       </div>
                       <div style={{ fontWeight: 700, color: '#0f172a' }}>
-                        ${((item.quantity || 1) * (item.unitPrice || item.product?.price || 100)).toFixed(2)}
+                        Rs {((item.quantity || 1) * (item.unitPrice || item.product?.price || 100)).toFixed(2)}
                       </div>
                     </div>
                   ))}

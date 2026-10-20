@@ -154,7 +154,7 @@ public class UserService {
     public List<Product> searchProducts(String keyword) {
 
         if (keyword == null || keyword.trim().isEmpty()) {
-            return Collections.emptyList();
+            return productRepository.findAll();
         }
 
         return productRepository
